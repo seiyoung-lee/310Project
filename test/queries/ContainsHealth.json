@@ -1,0 +1,27 @@
+{
+    "title": "starts with health and was able to attend after 2011",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "GT": {
+                        "courses_year": 2015
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "*health*"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"courses_dept":"kin"},{"courses_dept":"kin"},{"courses_dept":"kin"}]
+}

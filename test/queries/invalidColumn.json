@@ -1,0 +1,25 @@
+{
+    "title": "Invalid Query order 3",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "GT": {
+                        "courses_year": 2000
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "health psych"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

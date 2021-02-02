@@ -1,0 +1,21 @@
+{
+    "title": "Invalid IS  query 5",
+    "query": {
+        "WHERE": {
+            "IS": {
+                "courses_audit": 1
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_id",
+                "courses_avg",
+                "courses_title"
+            ],
+            "ORDER": "courses_title"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

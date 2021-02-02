@@ -1,0 +1,29 @@
+{
+    "title": "SELECT dept, avg WHERE avg < 62 and id 421",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "LT": {
+                        "courses_avg": 62
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_id": "421"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_avg",
+                "courses_id"
+            ],
+            "ORDER": "courses_id"
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"courses_dept":"frst","courses_avg":61.5,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"}]
+}

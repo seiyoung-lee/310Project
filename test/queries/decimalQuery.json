@@ -1,0 +1,27 @@
+{
+    "title": "selects courses with title health psych and greater than year 0.5",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "GT": {
+                        "courses_year": 0.5
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "health psych"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"},{"courses_dept":"psyc"}]
+}

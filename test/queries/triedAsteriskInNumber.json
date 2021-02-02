@@ -1,0 +1,27 @@
+{
+    "title": "asterisk instead of number",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "GT": {
+                        "courses_year": "*"
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "health psych"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}
