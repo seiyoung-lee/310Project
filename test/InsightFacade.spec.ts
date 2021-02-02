@@ -35,6 +35,9 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         room: "./test/data/room.zip",
         invalid: "./test/data/invalid.zip",
         invalidText: "./test/data/invalidText",
+        notCourses: "./test/data/notCourses.zip",
+        invalidJson: "./test/data/invalidJson.zip",
+        missingInfo: "./test/data/missingInfo.zip"
     };
     let datasets: { [id: string]: string } = {};
     let insightFacade: InsightFacade;
@@ -223,6 +226,33 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
     });
     it("Should not add an invalid dataset 9", function () {
         const id: string = "invalidText";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
+    it("Should not add an invalid dataset 10", function () {
+        const id: string = "notCourses";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
+    it("Should not add an invalid dataset 11", function () {
+        const id: string = "invalidJson";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
+    it("Should not add an invalid dataset 12", function () {
+        const id: string = "missingInfo";
         const futureResult: Promise<string[]> = insightFacade.addDataset(
             id,
             datasets[id],
@@ -505,6 +535,12 @@ describe("InsightFacade PerformQuery", () => {
 
     after(function () {
         Log.test(`After: ${this.test.parent.title}`);
+        try {
+            fs.removeSync(__dirname + "/../data");
+            fs.mkdirSync(__dirname + "/../data");
+        } catch (err) {
+            Log.error(err);
+        }
     });
 
     afterEach(function () {

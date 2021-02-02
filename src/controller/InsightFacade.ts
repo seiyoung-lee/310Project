@@ -1,5 +1,12 @@
 import Log from "../Util";
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
+import {
+    IInsightFacade,
+    InsightDataset,
+    InsightDatasetKind,
+    InsightError,
+    NotFoundError,
+    ObjectValues
+} from "./IInsightFacade";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
@@ -10,8 +17,8 @@ import * as JSZip from "jszip";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-    private dict: any;
-    private cacheDir = path.join(__dirname, "../../data");
+    private readonly dict: any;
+    private cacheDir: string = path.join(__dirname, "../../data");
     constructor() {
         if (!fs.existsSync(this.cacheDir)) {
             fs.mkdirSync(this.cacheDir);
@@ -22,29 +29,11 @@ export default class InsightFacade implements IInsightFacade {
                 this.dict = {};
             } else {
                 const readDir = path.join(this.cacheDir, `./${filenames[0]}`);
-                Log.trace(readDir);
                 const dictInCache = fs.readFileSync(readDir).toString();
                 this.dict = JSON.parse(dictInCache);
             }
         }
         Log.trace("InsightFacadeImpl::init()");
-    }
-
-    private notValidID = (id: string, kind: InsightDatasetKind) => {
-        if (kind === InsightDatasetKind.Rooms) {
-            return true;
-        }
-        if (id.includes("_")) {
-            return true;
-        } else {
-            if (id.trim().length === 0) {
-                return true;
-            } else if (id in this.dict) {
-                return true;
-            } else {
-                return !/[^_]+/.test(id);
-            }
-        }
     }
 
     private notValidIDRemove = (id: string) => {
@@ -59,10 +48,73 @@ export default class InsightFacade implements IInsightFacade {
         }
     }
 
+    private notValidID = (id: string, kind: InsightDatasetKind) => {
+        if (kind === InsightDatasetKind.Rooms) {
+            return true;
+        }
+        if (id.includes("_")) {
+            return true;
+        } else {
+            if (id in this.dict) {
+                return true;
+            } else {
+                return this.notValidIDRemove(id);
+            }
+        }
+    }
+
     private writeIntoDisc = () => {
         const stringData = JSON.stringify(this.dict);
         const writeDir = path.join(this.cacheDir, "./disc.json");
         fs.writeFileSync( writeDir, stringData);
+    }
+
+    private checkAllKeysCourses = (results: any[]) => {
+        let allData: {changed: boolean; values: ObjectValues[]} = {
+            changed: false, values: []
+        };
+        const keys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail", "Audit", "id", "Year", "Subject"];
+        results.forEach((r) => {
+            if (r.includes("result")) {
+                const jsonContent = JSON.parse(r);
+                if ("result" in jsonContent) {
+                    if (!(jsonContent.result.length === 0)) {
+                        jsonContent.result.forEach((values: any) => {
+                            let translatedValues: any = {};
+                            for (const key of keys) {
+                                if (key in values) {
+                                    switch (key) {
+                                        case "Course":
+                                            translatedValues["id"] = values[key];
+                                            break;
+                                        case "id":
+                                            translatedValues["uuid"] = values[key];
+                                            break;
+                                        case "Subject":
+                                            translatedValues["dept"] = values[key];
+                                            break;
+                                        case "Professor":
+                                            translatedValues["instructor"] = values[key];
+                                            break;
+                                        default:
+                                            translatedValues[key.toLowerCase()] = values[key];
+                                            break;
+                                    }
+                                } else {
+                                    translatedValues = {};
+                                    break;
+                                }
+                            }
+                            if (Object.keys(translatedValues).length !== 0) {
+                                allData.changed = true;
+                                allData["values"].push(translatedValues);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        return allData;
     }
 
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -78,23 +130,7 @@ export default class InsightFacade implements IInsightFacade {
                         promises.push(file.async("string"));
                     });
                     return Promise.all(promises).then((results) =>  {
-                        let allData: {changed: boolean; values: any[]} = {
-                            changed: false, values: []
-                        };
-                        results.forEach((r) => {
-                            if (r.includes("result")) {
-                                const jsonContent = JSON.parse(r);
-                                if ("result" in jsonContent) {
-                                    if (!(jsonContent.result.length === 0)) {
-                                        jsonContent.result.forEach((values: any) => {
-                                            allData.changed = true;
-                                            allData["values"].push(values);
-                                        });
-                                    }
-                                }
-                            }
-                        });
-                        return allData;
+                        return this.checkAllKeysCourses(results);
                     });
                 }).then((data) => {
                     if (data.changed) {
