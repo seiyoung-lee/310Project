@@ -1,0 +1,20 @@
+{
+    "title": "Invalid where query 3",
+    "query": {
+        "WHERE": [
+            {
+                "GT": {
+                    "courses_avg": 90
+                }
+            }
+        ],
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_avg"
+            ],
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

@@ -1,0 +1,27 @@
+{
+    "title": "Select all courses_title",
+    "query": {
+        "WHERE": {
+            "OR": [
+                {
+                    "GT": {
+                        "courses_year": 2000
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "*"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": false,
+    "result": "ResultTooLargeError"
+}

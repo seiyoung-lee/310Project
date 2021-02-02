@@ -1,0 +1,19 @@
+{
+    "title": "Invalid greater than query 3",
+    "query": {
+        "WHERE": {
+            "GT": {
+                "courses_instructor": "101"
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_avg"
+            ],
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

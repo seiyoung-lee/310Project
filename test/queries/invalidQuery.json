@@ -1,0 +1,6 @@
+{
+    "title": "MISSING OPTIONS",
+    "query": { "WHERE": {} },
+    "isQueryValid": false,
+    "result": "InsightError"
+}

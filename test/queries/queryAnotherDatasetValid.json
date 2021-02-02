@@ -1,0 +1,18 @@
+{
+    "title": "Invalid bcz rooms dataset doesn't exist",
+    "query": {
+        "WHERE": {
+            "GT": {
+                "rooms_avg": 99
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_avg"
+            ],
+            "ORDER": "rooms_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

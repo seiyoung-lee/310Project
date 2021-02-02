@@ -1,0 +1,29 @@
+{
+    "title": "THROW ERROR when eq has an array of obj and not an obj",
+    "query": {
+        "WHERE": {
+            "NOT": {
+                "EQ" : [
+                    {
+                        "EQ": {
+                            "courses_avg": 20
+                        }
+                    },
+                    {
+                        "GT": {
+                            "courses_avg": 90
+                        }
+                    }
+                ]}
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_pass"
+            ],
+            "ORDER": "courses_pass"
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

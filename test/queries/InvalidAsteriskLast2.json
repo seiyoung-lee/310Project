@@ -1,0 +1,27 @@
+{
+    "title": "Invalid asterisk middle last",
+    "query": {
+        "WHERE": {
+            "AND": [
+                {
+                    "GT": {
+                        "courses_year": 2015
+                    }
+                },
+                {
+                    "IS": {
+                        "courses_title": "heal*th*"
+                    }
+                }
+            ]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": false,
+    "result":"insight"
+}

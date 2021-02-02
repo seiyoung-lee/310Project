@@ -1,0 +1,32 @@
+{
+    "title": "Invalid IS  query 1",
+    "query": {
+        "WHERE": {
+            "NOT": {
+                "AND": [
+                    {
+                        "IS": {
+                            "courses_dept": "adhe"
+                        }
+                    },
+                    {
+                        "LT": {
+                            "courses_avg": 100
+                        }
+                    }
+                ]
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_id",
+                "courses_avg",
+                "courses_title"
+            ],
+            "ORDER": "courses_title"
+        }
+    },
+    "isQueryValid": false,
+    "result":"ResultTooLargeError"
+}
