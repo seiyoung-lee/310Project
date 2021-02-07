@@ -37,7 +37,8 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         invalidText: "./test/data/invalidText",
         notCourses: "./test/data/notCourses.zip",
         invalidJson: "./test/data/invalidJson.zip",
-        missingInfo: "./test/data/missingInfo.zip"
+        missingInfo: "./test/data/missingInfo.zip",
+        validInsideDirectory: "./test/data/validInsideDirectory.zip"
     };
     let datasets: { [id: string]: string } = {};
     let insightFacade: InsightFacade;
@@ -87,6 +88,13 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         const futureResult: Promise<string> = insightFacade.removeDataset(id);
         return expect(futureResult).to.eventually.be.rejectedWith(
             NotFoundError,
+        );
+    });
+    it("Failed attempt to remove a dataset 1", () => {
+        const id: string = "";
+        const futureResult: Promise<string> = insightFacade.removeDataset(id);
+        return expect(futureResult).to.eventually.be.rejectedWith(
+            InsightError,
         );
     });
     it("listDatasets test size 1", () => {
@@ -260,6 +268,33 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         );
         return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
     });
+    it("Should not add an invalid dataset 13", function () {
+        const id: string = "";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets["courses"],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
+    it("Should not add an invalid dataset 14", function () {
+        const id: string = "courses";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets["nothing"],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
+    it("Should not add an invalid dataset 15", function () {
+        const id: string = "*";
+        const futureResult: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets["courses"],
+            InsightDatasetKind.Courses,
+        );
+        return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
+    });
     it("Should not add an invalid dataset due to datasetType", function () {
         const id: string = "courses";
         const futureResult: Promise<string[]> = insightFacade.addDataset(
@@ -420,8 +455,56 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
                 return expect(Result).to.eventually.deep.equal(expected1);
             });
     });
-    it("Add valid dataset", function () {
+    it("Add 2 valid dataset that are the same", function () {
         const id: string = "courses";
+        const expected: string[] = [id];
+        const dummy: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
+        ).then(() => {
+            const result: Promise<string[]> = insightFacade.addDataset(
+                id,
+                datasets[id],
+                InsightDatasetKind.Courses,
+            );
+            return expect(result).to.eventually.be.rejectedWith(InsightError);
+        });
+    });
+    it("Add 1 that fails and then succeeds", function () {
+        const id: string = " ";
+        const expected: string[] = [id];
+        const dummy = insightFacade.addDataset(
+            id,
+            datasets["courses"],
+            InsightDatasetKind.Courses,
+        );
+        expect(dummy).to.eventually.be.rejectedWith(InsightError).then(() => {
+            const result: Promise<string[]> = insightFacade.addDataset(
+                "courses",
+                datasets["courses"],
+                InsightDatasetKind.Courses,
+            );
+            return expect(result).to.eventually.deep.equal(["courses"]);
+        });
+    });
+    // it("Add valid dataset remove and check disc", function () {
+    //     const id: string = "courses";
+    //     return insightFacade.addDataset(
+    //         id,
+    //         datasets[id],
+    //         InsightDatasetKind.Courses,
+    //     ).then(() => {
+    //         return insightFacade.removeDataset(id).then(() => {
+    //             const newFacade = new InsightFacade();
+    //             return newFacade.listDatasets().then((list) => {
+    //                 return expect(list).to.have.length(0);
+    //             });
+    //         });
+    //     });
+    // });
+    it("Add valid dataset with subdirectory", function () {
+        const id: string = "validInsideDirectory";
         const expected: string[] = [id];
         const dummy: Promise<string[]> = insightFacade.addDataset(
             id,

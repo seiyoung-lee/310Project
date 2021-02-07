@@ -37,7 +37,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     private notValidIDRemove = (id: string) => {
-        if (id.includes("_")) {
+        if (id.includes("_") || id.includes("*")) {
             return true;
         } else {
             if (id.trim().length === 0) {
@@ -50,9 +50,6 @@ export default class InsightFacade implements IInsightFacade {
 
     private notValidID = (id: string, kind: InsightDatasetKind) => {
         if (kind === InsightDatasetKind.Rooms) {
-            return true;
-        }
-        if (id.includes("_")) {
             return true;
         } else {
             if (id in this.dict) {
@@ -120,7 +117,7 @@ export default class InsightFacade implements IInsightFacade {
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             if (this.notValidID(id, kind)) {
-                reject(new InsightError());
+                return reject(new InsightError());
             } else {
                 let Zip = new JSZip();
                 return Zip.loadAsync(content, {base64: true})
@@ -141,7 +138,7 @@ export default class InsightFacade implements IInsightFacade {
                         this.writeIntoDisc();
                         return resolve(Object.keys(this.dict));
                     } else {
-                       reject(new InsightError());
+                       return reject(new InsightError());
                     }
                 }).catch((e) => {
                     Log.trace(e);
