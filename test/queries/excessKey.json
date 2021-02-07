@@ -1,0 +1,18 @@
+{
+    "title": "excessKey",
+    "query": {
+        "ORDER": "courses_avg",
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_avg"
+            ]
+        },
+        "WHERE": {
+            "LT": {
+                "courses_avg": 45
+            }
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+}

@@ -1,0 +1,46 @@
+{
+    "title": "bound1",
+    "query": {
+        "WHERE": {
+          "OR": [
+            {"IS": 
+            {"courses_dept": "cnps"}},
+            {"IS":
+            {"courses_id": "574"}},
+            {"EQ": 
+            {"courses_avg": 97.47}},
+            {"IS": 
+            {"courses_instructor": "neault, roberta a"}},
+            {"IS": 
+            {"courses_title": "career planning"}},
+            {"EQ": 
+            {"courses_pass": 15}},
+            {"EQ": 
+            {"courses_fail": 0}},
+            {"EQ": 
+            {"courses_audit": 0}},
+            {"IS": 
+            {"courses_uuid": "87779"}},
+            {"EQ": 
+            {"courses_year": 2009}}
+          ]
+        },
+        "OPTIONS": {
+          "COLUMNS": [
+            "courses_dept",
+            "courses_id",
+            "courses_avg",
+            "courses_instructor",
+            "courses_title",
+            "courses_pass",
+            "courses_fail",
+            "courses_audit",
+            "courses_uuid",
+            "courses_year"
+          ],
+          "ORDER": "courses_dept"
+        }
+      },
+      "isQueryValid": false,
+      "result": "ResultTooLargeError"
+    }

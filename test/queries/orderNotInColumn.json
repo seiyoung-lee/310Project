@@ -1,0 +1,25 @@
+{
+    "title": "orderNotInColumn",
+    "query": {
+        "WHERE": {
+            "AND": [{
+                "GT": {
+                    "courses_avg": 97
+                }
+            },
+            {
+                "LT": {
+                    "courses_avg": 98
+                }
+            }]
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_avg"
+            ],
+            "ORDER": "courses_dept"
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+}

@@ -1,0 +1,14 @@
+{
+    "title": "missingOptions",
+    "query": {
+        "WHERE": {
+                "NOT":{
+                    "LT": {
+                        "courses_avg": 97
+                    }
+                }
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+  }
