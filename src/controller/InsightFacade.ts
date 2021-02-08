@@ -169,17 +169,18 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     public performQuery(query: any): Promise<any[]> {
-        let valid: boolean = ValidateDataset.checkQuery(query, this.dict);
-        let v = ValidateDataset;
+        let validate: ValidateDataset = new ValidateDataset();
+        let valid: boolean = validate.checkQuery(query, this.dict);
         return new Promise<string[]>( (resolve, reject) => {
             if (!valid) {
                 return reject(new InsightError());
             } else {
                 // where -> ["AND", "OR", "GT", "EQ", "LT", "IS", "NOT"] -> this.dict.keys
                 // options -> ["COLUMNS", "ORDER"] -> this.dict.keys
-                resolve(query); }
+
+            return reject("Not implemented.");
+        }
         });
-        return Promise.reject("Not implemented.");
     }
 
     public listDatasets(): Promise<InsightDataset[]> {

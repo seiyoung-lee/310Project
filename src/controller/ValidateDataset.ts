@@ -1,62 +1,49 @@
 export default class ValidateDataset {
+    private globalID: string = "";
+    private allKeys: string[] = ["fail", "pass", "avg", "year", "audit", "course",
+                                "uuid", "instructor", "title", "id", "dept"];
 
-    public static checkWhere(query: any, globalID: string, dict: any): boolean {
+    public checkWhere(query: any, dict: any): boolean {
+        let keyNumbers: string[] = ["fail", "pass", "avg", "year", "audit"];
+        let keyStrings: string[] = ["course", "uuid", "instructor", "title", "id", "dept"];
         for (let key in query) {
             let cleanKey = key.split("_");
-            if (globalID === "") {
-                globalID = cleanKey[0];
+            if (this.globalID === "") {
+                this.globalID = cleanKey[0];
             } else {
-                if (cleanKey[0] !== globalID) {
+                if (cleanKey[0] !== this.globalID) {
                     return false;
                 }
             }
             if (cleanKey.length !== 2) {
                 return false;
             }
-            if (!(cleanKey[1] in dict[globalID].values.keys)) {
+            if (!(cleanKey[1] in this.allKeys)) {
                 return false;
             }
-            if (typeof query[key] !== "number") {
+            if (cleanKey[1] in keyNumbers && typeof query[key] !== "number") {
+                return false;
+            }
+            if (cleanKey[1] in keyStrings && typeof query[key] !== "string") {
                 return false;
             }
         }
         return true;
     }
 
-    public static checkIsNot(query: any, globalID: string, dict: any): boolean {
-        for (let key in query) {
-            let cleanKey = key.split("_");
-            if (globalID === "") {
-                globalID = cleanKey[0];
-            } else {
-                if (cleanKey[0] !== globalID) {
-                    return false;
-                }
-            }
-            if (cleanKey.length !== 2) {
-                return false;
-            }
-            if (!(cleanKey[1] in dict[globalID].values.keys)) {
-                return false;
-            }
-            if (typeof query[key] !== "string" || typeof query[key] !== "number") {
-                return false;
-            }
-        }
-        return true;
-    }
-    public static checkAnd(query: any, globalID: string, dict: any): boolean {
+    public checkAndOr(query: any, dict: any): boolean {
+        if (!(Array.isArray(query))) { return false; }
         for (let index in query) {
             if (index === "AND") {
-                this.checkAnd(query["AND"], globalID, dict);
+                return this.checkAndOr(query[index], dict);
             } else if (index === "OR") {
-                this.checkOr(query["OR"], globalID, dict);
-            } else if (index in ["GT", "EQ", "LT"]) {
-                if (!(this.checkWhere(query["WHERE"]["AND"][index], globalID, dict))) {
+                return this.checkAndOr(query[index], dict);
+            } else if (index in ["GT", "EQ", "LT", "IS"]) {
+                if (!(this.checkWhere(query[index], dict))) {
                     return false;
                 }
-            } else if (index in ["IS", "NOT"]) {
-                if (!(this.checkIsNot(query["WHERE"][index], globalID, dict))) {
+            } else if (index === "NOT") {
+                if (!(this.checkNot(query[index], dict))) {
                     return false;
                 }
             } else {
@@ -65,119 +52,127 @@ export default class ValidateDataset {
         }
         return true;
     }
-    public static checkOr(query: any, globalID: string, dict: any): boolean {
-        for (let index in query) {
-            if (index === "AND") {
-                this.checkAnd(query["AND"], globalID, dict);
-            } else if (index === "OR") {
-                this.checkOr(query["OR"], globalID, dict);
-            } else if (index in ["GT", "EQ", "LT", "IS", "NOT"]) {
-                if (!(this.checkWhere(query["WHERE"]["AND"][index], globalID, dict))) {
-                    return false;
-                }
-            } else if (index in ["IS", "NOT"]) {
-                if (!(this.checkIsNot(query["WHERE"][index], globalID, dict))) {
-                    return false;
-                }
-            } else {
-                return false;
+
+    public checkOrder(query: any, orderKeys: string, dict: any): string {
+        if (typeof query !== "string") {return orderKeys; }
+        let cleanKey = query.split("_");
+        if (this.globalID === "") {
+            this.globalID = cleanKey[0];
+        } else {
+            if (cleanKey[0] !== this.globalID) {
+                return orderKeys;
             }
         }
-        return true;
-    }
-    public static checkOrder(query: any, optionKeys: string[], globalID: string, dict: any): void {
-        for (let key in query) { // might throw an error because of var instead of let
-            let cleanKey = key.split("_");
-            if (globalID === "") {
-                globalID = cleanKey[0];
-            } else {
-                if (cleanKey[0] !== globalID) {
-                    optionKeys = [];
-                    return;
-                }
-            }
-            if (cleanKey.length !== 2 || !(cleanKey[1] in dict[globalID].values.keys)) {
-                optionKeys = [];
-                return;
-            } else {
-                if (!(cleanKey[1] in optionKeys)) {
-                    optionKeys = [];
-                    return;
-                } else {
-                    optionKeys.push(key);
-                }
-            }
+        if (cleanKey.length !== 2 || !(cleanKey[1] in this.allKeys)) {
+            return orderKeys;
+        } else {
+            orderKeys = query;
+            return orderKeys;
         }
     }
-    public static checkColumns(query: any, optionKeys: string[], globalID: string, dict: any): boolean {
+
+    public checkColumns(query: any, orderKeys: string, dict: any): boolean {
         for (let key in query) {
             let cleanKey = key.split("_");
-            if (globalID === "") {
-                globalID = cleanKey[0];
+            if (this.globalID === "") {
+                this.globalID = cleanKey[0];
             } else {
-                if (cleanKey[0] !== globalID) {
+                if (cleanKey[0] !== this.globalID) {
                     return false;
                 }
             }
             if (cleanKey.length !== 2) {
                 return false;
             }
-            if (!(cleanKey[1] in dict[globalID].values.keys)) {
+            if (!(cleanKey[1] in this.allKeys)) {
                 return false;
             } else {
-                if (!(cleanKey[1] in optionKeys)) {
-                    return false;
+                if (orderKeys.length !== 0 && !(cleanKey[1] === orderKeys)) {
+                        return false;
                 }
             }
         }
         return true;
     }
-    public static checkQuery(query: any, dict: any): boolean {
-        if (typeof query === "undefined" || typeof query === "number" ||
-            query == null || query.length <= 1) {return false; }
-        let globalID: string = "";
-        // let inputQuery = JSON.parse(query);
-        let inputQuery = query;
-        if (!inputQuery.hasOwnProperty("WHERE")) {return false; }
-        let flagEquality: boolean = false;
-        let and: boolean = inputQuery["WHERE"].hasOwnProperty("AND");
-        let or: boolean = inputQuery["WHERE"].hasOwnProperty("OR");
+
+    public checkNot(query: any, dict: any): boolean {
+        let and: boolean = query.hasOwnProperty("AND");
+        let or: boolean = query.hasOwnProperty("OR");
         if (and && or) {return false; }
         if (and) {
-            if (!this.checkAnd(inputQuery, globalID, dict)) {return false; }
+            if (!this.checkAndOr(query["AND"], dict)) {return false; }
         } else if (or) {
-            if (!this.checkOr(inputQuery, globalID, dict)) {return false; }
+            if (!this.checkAndOr(query["OR"], dict)) { return false; }
         } else {
-            for (let key in inputQuery["WHERE"]) {
-                if (key in ["GT", "EQ", "LT"]) {
-                    flagEquality = true;
-                    if (!(this.checkWhere(inputQuery["WHERE"][key], globalID, dict))) {
+            let moreThanOne: boolean = false;
+            for (let key in query) {
+                if (moreThanOne) {return false; }
+                moreThanOne = true;
+                if (key in ["GT", "EQ", "LT", "IS"]) {
+                    if (!(this.checkWhere(query[key], dict))) {
                         return false;
                     }
-                } else if (key in ["IS", "NOT"]) {
-                    flagEquality = true;
-                    if (!(this.checkIsNot(inputQuery["WHERE"][key], globalID, dict))) {
+                } else if (key === "NOT") {
+                    if (!(this.checkNot(query[key], dict))) {
                         return false;
                     }
                 } else {
-                    if (flagEquality) {return false; }
+                    return false;
                 }
             }
         }
-        if (!inputQuery.hasOwnProperty("OPTIONS")) {
-            return false;
+        return true;
+    }
+
+    public checkQuery(query: any, dict: any): boolean {
+        if (typeof query === "undefined" || typeof query === "number" ||
+            query == null || query.length <= 1) {return false; }
+        let inputQuery = query;
+        if (!inputQuery.hasOwnProperty("WHERE")) {return false; }
+        let not: boolean = inputQuery["WHERE"].hasOwnProperty("NOT");
+        if (not) {
+            if (!(this.checkNot(inputQuery["WHERE"]["NOT"], dict))) {
+                return false;
+            }
+        } else {
+            let and: boolean = inputQuery["WHERE"].hasOwnProperty("AND");
+            let or: boolean = inputQuery["WHERE"].hasOwnProperty("OR");
+            if (and && or) {return false; }
+            if (and) {
+                if (!this.checkAndOr(inputQuery["WHERE"]["AND"], dict)) {return false; }
+            } else if (or) {
+                if (!this.checkAndOr(inputQuery["WHERE"]["OR"], dict)) { return false; }
+            } else {
+                let moreThanOne: boolean = false;
+                for (let key in inputQuery["WHERE"]) {
+                    if (moreThanOne) {return false; }
+                    moreThanOne = true;
+                    if (key in ["GT", "EQ", "LT", "IS"]) {
+                        if (!(this.checkWhere(inputQuery["WHERE"][key], dict))) {
+                            return false;
+                        }
+                    } else if (key === "NOT") {
+                        if (!(this.checkNot(inputQuery["WHERE"][key], dict))) {
+                            return false;
+                        }
+                    } else {return false; }
+                }
+            }
         }
-        let optionKeys: string[] = [];
+
+        // options
+        if (!inputQuery.hasOwnProperty("OPTIONS")) {return false; }
         for (let key in inputQuery["OPTIONS"]) {
             if (!(key in ["COLUMNS", "ORDER"])) {return false; }
         }
+        let orderKeys: string = "";
         if ((inputQuery["OPTIONS"].hasOwnProperty["ORDER"])) {
-            this.checkOrder(inputQuery["OPTIONS"]["ORDER"], optionKeys, globalID, dict);
-            if (optionKeys.length === 0) {return false; }
+            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], orderKeys, dict);
+            if (orderKeys.length === 0) {return false; }
         }
-        if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], optionKeys, globalID, dict))) {
-            return false;
-        }
+        if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) {return false; }
+        if (!(Array.isArray(inputQuery["OPTIONS"]["COLUMNS"]))) { return false; }
+        if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], orderKeys, dict))) {return false; }
         return true;
     }
 }
