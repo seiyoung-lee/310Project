@@ -1,0 +1,15 @@
+{
+    "title": "bound31",
+    "query": {
+      "WHERE": 
+      {"OR" : []},
+        "OPTIONS": {
+          "COLUMNS": [
+            "courses_year"
+          ],
+          "ORDER": "courses_year"
+        }
+    },
+      "isQueryValid": false,
+      "result": "InsightError"
+    }

@@ -7,6 +7,7 @@ import {
     NotFoundError,
     ObjectValues
 } from "./IInsightFacade";
+import ValidateDataset from "./ValidateDataset";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
@@ -168,7 +169,18 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     public performQuery(query: any): Promise<any[]> {
-        return Promise.reject("Not implemented.");
+        let validate: ValidateDataset = new ValidateDataset();
+        let valid: boolean = validate.checkQuery(query, this.dict);
+        return new Promise<string[]>( (resolve, reject) => {
+            if (!valid) {
+                return reject(new InsightError());
+            } else {
+                // where -> ["AND", "OR", "GT", "EQ", "LT", "IS", "NOT"] -> this.dict.keys
+                // options -> ["COLUMNS", "ORDER"] -> this.dict.keys
+
+            return reject("Not implemented.");
+        }
+        });
     }
 
     public listDatasets(): Promise<InsightDataset[]> {

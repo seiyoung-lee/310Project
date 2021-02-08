@@ -1,0 +1,15 @@
+{
+    "title": "bound29",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+          "COLUMNS": [
+            "courses_dept",
+            123
+          ],
+          "ORDER": "courses_dept"
+        }
+      },
+      "isQueryValid": false,
+      "result": "InsightError"
+    }

@@ -1,0 +1,19 @@
+{
+  "title": "bound22",
+  "query": {
+      "WHERE": 
+        {"EQ": 
+          {"courses_year": 2020}
+      },
+      "OPTIONS": {
+        "COLUMNS": [{
+          "WHERE":  
+            {"EQ": 
+              {"courses_year": 2020}
+          }}],
+        "ORDER": "courses_dept"
+      }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+  }

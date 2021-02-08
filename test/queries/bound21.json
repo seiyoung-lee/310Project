@@ -1,0 +1,17 @@
+{
+  "title": "bound21",
+  "query": {
+      "WHERE": {
+          "IS": 
+          {"courses_uuid": "****"}
+        
+      },
+      "OPTIONS": {
+        "COLUMNS": [
+        ],
+        "ORDER": "courses_dept"
+      }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+  }

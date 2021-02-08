@@ -1,0 +1,17 @@
+{
+    "title": "error in array and",
+    "query": {
+        "WHERE": {
+            "OR": 1
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_avg"
+            ],
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+}
