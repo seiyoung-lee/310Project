@@ -10,9 +10,9 @@ export default class PerformQueryClass {
     private checkOuterQuery = (query: any) => {
         const validate = new ValidateDataset();
         const valid: boolean = validate.checkQuery(query, this.dict);
-        if (!valid) {
-            throw new InsightError("not valid");
-        }
+        // if (!valid) {
+        //     throw new InsightError("not valid");
+        // }
         if (this.isObject(query) && query !== null) {
             const queryKeys = Object.keys(query);
             if (query.hasOwnProperty("WHERE") && query.hasOwnProperty("OPTIONS") && queryKeys.length === 2) {
