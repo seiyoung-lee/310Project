@@ -8,35 +8,12 @@ export default class PerformQueryClass {
         this.dict = dict;
     }
     private checkOuterQuery = (query: any) => {
-        if (this.isObject(query) && query !== null) {
-            const queryKeys = Object.keys(query);
-            if (queryKeys.includes("WHERE") && queryKeys.includes("OPTIONS") && queryKeys.length === 2) {
-                const options: any = query["OPTIONS"];
-                if (!this.isObject(options)) {
-                    throw new InsightError("outer");
-                }
-                const optionsKeys = Object.keys(options);
-                let length;
-                if ("ORDER" in options) {
-                    length = 2;
-                } else {
-                    length = 1;
-                }
-                if (!(optionsKeys.length === length && "COLUMNS" in options)) {
-                    throw new InsightError("outer 2");
-                } else {
-                    if (!Array.isArray(options["COLUMNS"])) {
-                        throw new InsightError("outer 3");
-                    } else if (length === 2 && !options["COLUMNS"].includes(options["ORDER"])) {
-                        throw new InsightError("outer 4");
-                    }
-                    return length === 2;
-                }
-            } else {
-                throw new InsightError("outer 5");
-            }
+        const validate = new ValidateDataset();
+        const valid: boolean = validate.checkQuery(query, this.dict);
+        if (!valid) {
+            throw new InsightError("not valid");
         } else {
-            throw new InsightError("outer 6");
+            return query["OPTIONS"].hasOwnProperty("ORDER");
         }
     }
     private getColumnsAndDataSet = (columns: string[]) => {

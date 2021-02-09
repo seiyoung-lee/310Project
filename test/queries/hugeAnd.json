@@ -2,7 +2,7 @@
     "title": "SELECT dept, id, avg WHERE avg > 90 && id == '' ORDER BY avg",
     "query": {
         "WHERE": {
-            "AND": [
+            "OR": [
                 {
                     "GT": {
                         "courses_avg": 0
