@@ -6,20 +6,6 @@ export default class ValidateDataset {
         this.globalID = "";
         this.allKeys = ["fail", "pass", "avg", "year", "audit", "course", "uuid", "instructor", "title", "id", "dept"];
     }
-    private getCleanKey(query: any): string[] {
-        let cleanKey: string[] = [];
-        let moreThanOne = false;
-        for (let k in query) {
-            if (moreThanOne) {
-                cleanKey = [];
-                break;
-            }
-            moreThanOne = true;
-            cleanKey = k.split("_");
-        }
-        return cleanKey;
-    }
-
     public checkWhere(query: any, dict: any): boolean {
         if (typeof query !== "object") {
             return false; }
@@ -39,27 +25,19 @@ export default class ValidateDataset {
                 this.globalID = cleanKey[0];
             } else {
                 if (cleanKey[0] !== this.globalID) {
-
-
                     return false;
                 }
             }
             if (cleanKey.length !== 2) {
-
-
                 return false;
             }
             if (!(this.allKeys.includes(cleanKey[1]))) {
-
-
                 return false;
             }
             if (cleanKey[1] in keyNumbers && typeof query[key] !== "number") {
-
                 return false;
             }
             if (cleanKey[1] in keyStrings && typeof query[key] !== "string") {
-
                 return false;
             }
         }
@@ -105,10 +83,11 @@ export default class ValidateDataset {
         return true;
     }
 
-    public checkOrder(query: any, orderKeys: string, dict: any): string {
-        if (typeof query !== "string") {return orderKeys; }
+    public checkOrder(query: any, columns: string[], orderKeys: string): string {
+        if (typeof query !== "string") { return orderKeys; }
+        if (!columns.includes(query)) { return orderKeys; }
         let cleanKey = query.split("_");
-
+        if (cleanKey.length !== 2) { return orderKeys; }
         if (this.globalID === "") {
             this.globalID = cleanKey[0];
         } else {
@@ -116,7 +95,7 @@ export default class ValidateDataset {
                 return orderKeys;
             }
         }
-        if (cleanKey.length !== 2 || !(cleanKey[1] in this.allKeys)) {
+        if (cleanKey.length !== 2 || !(this.allKeys.includes(cleanKey[1]))) {
             return orderKeys;
         } else {
             orderKeys = query;
@@ -125,34 +104,26 @@ export default class ValidateDataset {
     }
 
     public checkColumns(query: any, orderKeys: string, dict: any): boolean {
-        for (let key of query) {
-
+        query.forEach((key: string) => {
             let cleanKey: string[] = key.split("_");
-
             if (this.globalID === "") {
                 this.globalID = cleanKey[0];
             } else {
                 if (cleanKey[0] !== this.globalID) {
-
-
                     return false;
                 }
             }
             if (cleanKey.length !== 2) {
-
                 return false;
             }
             if (!(this.allKeys.includes(cleanKey[1]))) {
-
-
                 return false;
             } else {
                 if (orderKeys.length !== 0 && !(cleanKey[1] === orderKeys)) {
-
                     return false;
                 }
             }
-        }
+        }) ;
         return true;
     }
 
@@ -185,11 +156,10 @@ export default class ValidateDataset {
         return true;
     }
 
-    public checkQuery(query: any, dict: any): boolean {
-        if (typeof query === "undefined" || typeof query !== "object" ||
-            query == null || Object.keys(query).length <= 1) {
+    public checkQuery(inputQuery: any, dict: any): boolean {
+        if (typeof inputQuery === "undefined" || typeof inputQuery !== "object" ||
+            inputQuery == null || Object.keys(inputQuery).length <= 1) {
             return false; }
-        let inputQuery = query;
         if (!inputQuery.hasOwnProperty("WHERE")) {
         return false; }
         let not: boolean = inputQuery["WHERE"].hasOwnProperty("NOT");
@@ -226,12 +196,12 @@ export default class ValidateDataset {
             if (!(["COLUMNS", "ORDER"].includes(key))) { return false; }
         }
         let orderKeys: string = "";
-        if ((inputQuery["OPTIONS"].hasOwnProperty["ORDER"])) {
-            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], orderKeys, dict);
+        if (!(Array.isArray(inputQuery["OPTIONS"]["COLUMNS"]))) { return false; }
+        if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) { return false; }
+        if ("ORDER" in inputQuery["OPTIONS"]) {
+            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], inputQuery["OPTIONS"]["COLUMNS"], orderKeys);
             if (orderKeys.length === 0) { return false; }
         }
-        if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) { return false; }
-        if (!(Array.isArray(inputQuery["OPTIONS"]["COLUMNS"]))) { return false; }
         if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], orderKeys, dict))) { return false; }
         return true;
     }
