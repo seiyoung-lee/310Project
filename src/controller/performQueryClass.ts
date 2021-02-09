@@ -240,8 +240,7 @@ export default class PerformQueryClass {
                 } else if ("LT" in query.query) { return this.lessQuery(query, not, sections);
                 } else if ("EQ" in query.query) { return this.equalQuery(query, not, sections);
                 } else if ("GT" in query.query) { return this.greaterQuery(query, not, sections);
-                } else { throw new InsightError("get query 3");
-                }
+                } else { throw new InsightError("get query 3"); }
             }
         } else {
             throw new InsightError("get query 2");
