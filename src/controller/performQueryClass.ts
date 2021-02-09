@@ -29,6 +29,7 @@ export default class PerformQueryClass {
                     } else if (length === 2 && !options["COLUMNS"].includes(options["ORDER"])) {
                         throw new InsightError("outer 4");
                     }
+                    return length === 2;
                 }
             } else {
                 throw new InsightError("outer 5");
@@ -98,6 +99,9 @@ export default class PerformQueryClass {
                         return element.uuid === value.uuid;
                     }))) {
                         ret.push(value);
+                        if (ret.length >= 5000) {
+                            throw new ResultTooLargeError();
+                        }
                     }
                 }));
             }
@@ -204,14 +208,22 @@ export default class PerformQueryClass {
     private isObject = (obj: any) => {
         return obj === Object(obj);
     }
-    private getRightKeys = (query: QueryValues) => {
-        return query.columns;
+    private getRightKeys = (query: QueryValues, sections: any[]) => {
+        let ret: any[] = [];
+        sections.forEach((section: any) => {
+            let rightKeys: any = {};
+            query.columns.forEach((col) => {
+                rightKeys[`${query.id}_${col}`] = section[col];
+            });
+            ret.push(rightKeys);
+        });
+        return ret;
     }
     private getQuery(query: QueryValues, not: boolean, start: boolean, sections: any[]): any[] {
         if (this.isObject(query.query)) {
             const keys = Object.keys(query.query);
             if (start && keys.length === 0) {
-                return this.getRightKeys(query);
+                return sections;
             } else if (keys.length === 0) {
                 throw new InsightError("get query");
             } else {
@@ -241,7 +253,7 @@ export default class PerformQueryClass {
     public performQuery(query: any): Promise<any[]> {
         return new Promise<any[]>((resolve, reject) => {
             try {
-                this.checkOuterQuery(query);
+                const hasOrder = this.checkOuterQuery(query);
                 const columnsForSections = this.getColumnsAndDataSet(query["OPTIONS"]["COLUMNS"]);
                 const myQuery: QueryValues = {
                     query: query["WHERE"],
@@ -249,7 +261,26 @@ export default class PerformQueryClass {
                     id: columnsForSections["datasetID"]
                 };
                 const sections = this.dict[columnsForSections["datasetID"]].sections;
-                resolve(this.getQuery(myQuery, false, true, sections));
+                const theQuery = this.getQuery(myQuery, false, true, sections);
+                if (theQuery.length >= 5000) {
+                    return reject(new ResultTooLargeError());
+                }
+                const sectionsRightKeys = this.getRightKeys(myQuery, theQuery);
+                if (hasOrder) {
+                    const orderKey: string = query["OPTIONS"]["ORDER"];
+                    const orderSectionRight = sectionsRightKeys.sort(((a: any, b: any) => {
+                        if (orderKey.includes("dept") || orderKey.includes("id") || orderKey.includes("instructor")
+                            || orderKey.includes("uuid") || orderKey.includes("title")) {
+                            return a[orderKey] > b[orderKey] ? 1 : a[orderKey] < b[orderKey] ? -1 : 0;
+                        } else {
+                            return a[orderKey] - b[orderKey];
+                        }
+                    }));
+                    Log.trace(orderSectionRight);
+                    resolve(orderSectionRight);
+                } else {
+                    return resolve(sectionsRightKeys);
+                }
             } catch (e) {
                 reject(e);
             }
