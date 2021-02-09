@@ -38,7 +38,8 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         notCourses: "./test/data/notCourses.zip",
         invalidJson: "./test/data/invalidJson.zip",
         missingInfo: "./test/data/missingInfo.zip",
-        validInsideDirectory: "./test/data/validInsideDirectory.zip"
+        validInsideDirectory: "./test/data/validInsideDirectory.zip",
+        avgIsString: "./test/data/avgIsString.zip"
     };
     let datasets: { [id: string]: string } = {};
     let insightFacade: InsightFacade;
@@ -287,10 +288,10 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
         return expect(futureResult).to.eventually.be.rejectedWith(InsightError);
     });
     it("Should not add an invalid dataset 15", function () {
-        const id: string = "*";
+        const id: string = "avgIsString";
         const futureResult: Promise<string[]> = insightFacade.addDataset(
             id,
-            datasets["courses"],
+            datasets[id],
             InsightDatasetKind.Courses,
         );
         return expect(futureResult).to.eventually.be.rejectedWith(InsightError);

@@ -25,5 +25,5 @@
         }
     },
     "isQueryValid": true,
-    "result":[{"courses_dept":"epse","courses_avg":98.08},{"courses_dept":"epse","courses_avg":98.36},{"courses_dept":"epse","courses_avg":98.45},{"courses_dept":"epse","courses_avg":98.45},{"courses_dept":"epse","courses_avg":98.58},{"courses_dept":"epse","courses_avg":98.58},{"courses_dept":"epse","courses_avg":98.7},{"courses_dept":"epse","courses_avg":98.76},{"courses_dept":"epse","courses_avg":98.76},{"courses_dept":"epse","courses_avg":98.8}]
+    "result":[{"courses_dept":"frst","courses_avg":61.5,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"}]
 }

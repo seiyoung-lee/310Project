@@ -27,6 +27,11 @@ export interface ObjectValues {
     uuid: string;
     year: number;
 }
+export interface QueryValues {
+    id: string;
+    query: any;
+    columns: string[];
+}
 
 export class InsightError extends Error {
     constructor(...args: any[]) {
