@@ -234,21 +234,20 @@ export default class PerformQueryClass {
                     return reject(new ResultTooLargeError());
                 }
                 const sectionsRightKeys = this.getRightKeys(myQuery, theQuery);
-                return resolve(sectionsRightKeys);
-                // if (hasOrder) {
-                //     const orderKey: string = query["OPTIONS"]["ORDER"];
-                //     const orderSectionRight = sectionsRightKeys.sort(((a: any, b: any) => {
-                //         if (orderKey.includes("dept") || orderKey.includes("id") || orderKey.includes("instructor")
-                //             || orderKey.includes("uuid") || orderKey.includes("title")) {
-                //             return a[orderKey] > b[orderKey] ? 1 : a[orderKey] < b[orderKey] ? -1 : 0;
-                //         } else {
-                //             return a[orderKey] - b[orderKey];
-                //         }
-                //     }));
-                //     resolve(orderSectionRight);
-                // } else {
-                //     return resolve(sectionsRightKeys);
-                // }
+                if (hasOrder) {
+                    const orderKey: string = query["OPTIONS"]["ORDER"];
+                    const orderSectionRight = sectionsRightKeys.sort(((a: any, b: any) => {
+                        if (orderKey.includes("dept") || orderKey.includes("id") || orderKey.includes("instructor")
+                            || orderKey.includes("uuid") || orderKey.includes("title")) {
+                            return a[orderKey] > b[orderKey] ? 1 : a[orderKey] < b[orderKey] ? -1 : 0;
+                        } else {
+                            return a[orderKey] - b[orderKey];
+                        }
+                    }));
+                    return resolve(orderSectionRight);
+                } else {
+                    return resolve(sectionsRightKeys);
+                }
             } catch (e) {
                 reject(e);
             }
