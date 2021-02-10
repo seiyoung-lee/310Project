@@ -122,48 +122,30 @@ export default class PerformQueryClass {
     }
     private isQuery(query: any, not: boolean, sections: any[]) {
         const isObject = query.query["IS"];
+        // TODO: asterisk
         const allowedKeys = ["dept", "id", "instructor", "title", "uuid"];
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
-        if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1])
-            || typeof(isObject[keys[0]]) === "number") { throw new InsightError("IS QUERY"); }
-        let ret: any[] = [];
-        let hasAsterisk: boolean = false;
-        let startEndAll: number = -2;
-        const valArray = isObject[keys[0]].split("*");
-        if (isObject[keys[0]].includes("*")) {
-            hasAsterisk = true;
-            if (isObject[keys[0]] === "**" || isObject[keys[0]] === "*") { return sections;
-            } else if (valArray.length === 2) {
-                if (valArray[0] === "") { startEndAll = -1;
-                } else if (valArray[1] === "") { startEndAll = 1;
-                } else { throw new InsightError("invalid asterisk"); }
-            } else if (valArray.length === 3) {
-                if (valArray[0] === "" && valArray[2] === "") { startEndAll = 0;
-                } else { throw new InsightError("invalid asterisk"); }
-            } else { throw new InsightError("invalid asterisk"); }
+        if (keys.length !== 1
+            || val[0] !== query.id
+            || !allowedKeys.includes(val[1])
+            || typeof(isObject[keys[0]]) === "number") {
+            throw new InsightError("IS QUERY");
         }
-        sections.forEach((section: any) => {
-            if (hasAsterisk) {
-                if (startEndAll === -1) {
-                    if (not) {
-                        if (!section[val[1]].endsWith(valArray[1])) { ret.push(section); }
-                    } else { if (section[val[1]].endsWith(valArray[1])) { ret.push(section); }}
-                } else if (startEndAll === 1) {
-                    if (not) {
-                        if (!section[val[1]].startsWith(valArray[0])) { ret.push(section); }
-                    } else { if (section[val[1]].startsWith(valArray[0])) { ret.push(section); } }
-                } else if (startEndAll === 0) {
-                    if (not) {
-                        if (!section[val[1]].includes(valArray[1])) { ret.push(section); }
-                    } else { if (section[val[1]].includes(valArray[1])) { ret.push(section); }}
-                } else { throw new InsightError("invalid asterisk"); }
-            } else if (not && section[val[1]] !== isObject[keys[0]]) {
-                ret.push(section);
-            } else if (!not && section[val[1]] === isObject[keys[0]]) {
-                ret.push(section);
-            }
-        });
+        let ret: any[] = [];
+        if (not) {
+            sections.forEach((section: any) => {
+                if (section[val[1]] !== isObject[keys[0]]) {
+                    ret.push(section);
+                }
+            });
+        } else {
+            sections.forEach((section: any) => {
+                if (section[val[1]] === isObject[keys[0]]) {
+                    ret.push(section);
+                }
+            });
+        }
         return ret;
     }
     private greaterQuery(query: QueryValues, not: boolean, sections: any[]) {
