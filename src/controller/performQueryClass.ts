@@ -1,6 +1,5 @@
 import Log from "../Util";
 import { InsightError, QueryValues, ResultTooLargeError } from "./IInsightFacade";
-import ValidateDataset from "./ValidateDataset";
 
 export default class PerformQueryClass {
     private readonly dict: any;
@@ -8,12 +7,35 @@ export default class PerformQueryClass {
         this.dict = dict;
     }
     private checkOuterQuery = (query: any) => {
-        const validate = new ValidateDataset();
-        const valid: boolean = validate.checkQuery(query, this.dict);
-        if (!valid) {
-            throw new InsightError("not valid");
+        if (this.isObject(query) && query !== null) {
+            const queryKeys = Object.keys(query);
+            if (queryKeys.includes("WHERE") && queryKeys.includes("OPTIONS") && queryKeys.length === 2) {
+                const options: any = query["OPTIONS"];
+                if (!this.isObject(options)) {
+                    throw new InsightError("outer");
+                }
+                const optionsKeys = Object.keys(options);
+                let length;
+                if ("ORDER" in options) {
+                    length = 2;
+                } else {
+                    length = 1;
+                }
+                if (!(optionsKeys.length === length && "COLUMNS" in options)) {
+                    throw new InsightError("outer 2");
+                } else {
+                    if (!Array.isArray(options["COLUMNS"])) {
+                        throw new InsightError("outer 3");
+                    } else if (length === 2 && !options["COLUMNS"].includes(options["ORDER"])) {
+                        throw new InsightError("outer 4");
+                    }
+                    return length === 2;
+                }
+            } else {
+                throw new InsightError("outer 5");
+            }
         } else {
-            return query["OPTIONS"].hasOwnProperty("ORDER");
+            throw new InsightError("outer 6");
         }
     }
     private getColumnsAndDataSet = (columns: string[]) => {
@@ -73,7 +95,9 @@ export default class PerformQueryClass {
                     id: query.id
                 };
                 this.getQuery(newQueryOR, not, false, sections).forEach(((value: any) => {
-                    if (!ret.includes(value)) {
+                    if (!(ret.some((element) => {
+                        return element.uuid === value.uuid;
+                    }))) {
                         ret.push(value);
                         if (ret.length >= 5000) {
                             throw new ResultTooLargeError();
@@ -98,78 +122,50 @@ export default class PerformQueryClass {
     }
     private isQuery(query: any, not: boolean, sections: any[]) {
         const isObject = query.query["IS"];
-        // TODO: asterisk
         const allowedKeys = ["dept", "id", "instructor", "title", "uuid"];
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
-        if (keys.length !== 1
-            || val[0] !== query.id
-            || !allowedKeys.includes(val[1])
-            || typeof(isObject[keys[0]]) === "number") {
-            throw new InsightError("IS QUERY");
-        }
+        if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1])
+            || typeof(isObject[keys[0]]) === "number") { throw new InsightError("IS QUERY"); }
         let ret: any[] = [];
-        if (not) {
-            sections.forEach((section: any) => {
-                if (section[val[1]] !== isObject[keys[0]]) {
-                    ret.push(section);
-                }
-            });
-        } else {
-            sections.forEach((section: any) => {
-                if (section[val[1]] === isObject[keys[0]]) {
-                    ret.push(section);
-                }
-            });
+        let hasAsterisk: boolean = false;
+        let startEndAll: number = -2;
+        const valArray = isObject[keys[0]].split("*");
+        if (isObject[keys[0]].includes("*")) {
+            hasAsterisk = true;
+            if (isObject[keys[0]] === "**" || isObject[keys[0]] === "*") { return sections;
+            } else if (valArray.length === 2) {
+                if (valArray[0] === "") { startEndAll = -1;
+                } else if (valArray[1] === "") { startEndAll = 1;
+                } else { throw new InsightError("invalid asterisk"); }
+            } else if (valArray.length === 3) {
+                if (valArray[0] === "" && valArray[2] === "") { startEndAll = 0;
+                } else { throw new InsightError("invalid asterisk"); }
+            } else { throw new InsightError("invalid asterisk"); }
         }
+        sections.forEach((section: any) => {
+            if (hasAsterisk) {
+                if (startEndAll === -1) {
+                    if (not) {
+                        if (!section[val[1]].endsWith(valArray[1])) { ret.push(section); }
+                    } else { if (section[val[1]].endsWith(valArray[1])) { ret.push(section); }}
+                } else if (startEndAll === 1) {
+                    if (not) {
+                        if (!section[val[1]].startsWith(valArray[0])) { ret.push(section); }
+                    } else { if (section[val[1]].startsWith(valArray[0])) { ret.push(section); } }
+                } else if (startEndAll === 0) {
+                    if (not) {
+                        if (!section[val[1]].includes(valArray[1])) { ret.push(section); }
+                    } else { if (section[val[1]].includes(valArray[1])) { ret.push(section); }}
+                } else { throw new InsightError("invalid asterisk"); }
+            } else if (not && section[val[1]] !== isObject[keys[0]]) {
+                ret.push(section);
+            } else if (!not && section[val[1]] === isObject[keys[0]]) {
+                ret.push(section);
+            }
+        });
         return ret;
     }
-    // private isQuery(query: any, not: boolean, sections: any[]) {
-    //     const isObject = query.query["IS"];
-    //     const allowedKeys = ["dept", "id", "instructor", "title", "uuid"];
-    //     const keys = Object.keys(isObject);
-    //     const val = keys[0].split("_");
-    //     if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1])
-    //         || typeof(isObject[keys[0]]) === "number") { throw new InsightError("IS QUERY"); }
-    //     let ret: any[] = [];
-    //     let hasAsterisk: boolean = false;
-    //     let startEndAll: number = -2;
-    //     const valArray = isObject[keys[0]].split("*");
-    //     if (isObject[keys[0]].includes("*")) {
-    //         hasAsterisk = true;
-    //         if (isObject[keys[0]] === "**" || isObject[keys[0]] === "*") { return sections;
-    //         } else if (valArray.length === 2) {
-    //             if (valArray[0] === "") { startEndAll = -1;
-    //             } else if (valArray[1] === "") { startEndAll = 1;
-    //             } else { throw new InsightError("invalid asterisk"); }
-    //         } else if (valArray.length === 3) {
-    //             if (valArray[0] === "" && valArray[2] === "") { startEndAll = 0;
-    //             } else { throw new InsightError("invalid asterisk"); }
-    //         } else { throw new InsightError("invalid asterisk"); }
-    //     }
-    //     sections.forEach((section: any) => {
-    //         if (hasAsterisk) {
-    //             if (startEndAll === -1) {
-    //                 if (not) {
-    //                     if (!section[val[1]].endsWith(valArray[1])) { ret.push(section); }
-    //                 } else { if (section[val[1]].endsWith(valArray[1])) { ret.push(section); }}
-    //             } else if (startEndAll === 1) {
-    //                 if (not) {
-    //                     if (!section[val[1]].startsWith(valArray[0])) { ret.push(section); }
-    //                 } else { if (section[val[1]].startsWith(valArray[0])) { ret.push(section); } }
-    //             } else if (startEndAll === 0) {
-    //                 if (not) {
-    //                     if (!section[val[1]].includes(valArray[1])) { ret.push(section); }
-    //                 } else { if (section[val[1]].includes(valArray[1])) { ret.push(section); }}
-    //             } else { throw new InsightError("invalid asterisk"); }
-    //         } else if (not && section[val[1]] !== isObject[keys[0]]) {
-    //             ret.push(section);
-    //         } else if (!not && section[val[1]] === isObject[keys[0]]) {
-    //             ret.push(section);
-    //         }
-    //     });
-    //     return ret;
-    // }
     private greaterQuery(query: QueryValues, not: boolean, sections: any[]) {
         const greaterObject = query.query["GT"];
         const val = this.numberQueryValid(greaterObject, query.id);
@@ -226,19 +222,29 @@ export default class PerformQueryClass {
     private getQuery(query: QueryValues, not: boolean, start: boolean, sections: any[]): any[] {
         if (this.isObject(query.query)) {
             const keys = Object.keys(query.query);
-            if (start && keys.length === 0) { return sections;
-            } else if (keys.length === 0) { throw new InsightError("get query");
+            if (start && keys.length === 0) {
+                return sections;
+            } else if (keys.length === 0) {
+                throw new InsightError("get query");
             } else {
                 if ("NOT" in query.query) {
                     const newQuery: QueryValues = { query: query.query["NOT"], columns: query.columns, id: query.id };
                     return this.getQuery(newQuery, !not, false, sections);
-                } else if ("AND" in query.query) { return this.OrAndQuery(query, not, "AND", sections);
-                } else if ("OR" in query.query) { return this.OrAndQuery(query, not, "OR", sections);
-                } else if ("IS" in query.query) { return this.isQuery(query, not, sections);
-                } else if ("LT" in query.query) { return this.lessQuery(query, not, sections);
-                } else if ("EQ" in query.query) { return this.equalQuery(query, not, sections);
-                } else if ("GT" in query.query) { return this.greaterQuery(query, not, sections);
-                } else { throw new InsightError("get query 3"); }
+                } else if ("AND" in query.query) {
+                    return this.OrAndQuery(query, not, "AND", sections);
+                } else if ("OR" in query.query) {
+                    return this.OrAndQuery(query, not, "OR", sections);
+                } else if ("IS" in query.query) {
+                    return this.isQuery(query, not, sections);
+                } else if ("LT" in query.query) {
+                    return this.lessQuery(query, not, sections);
+                } else if ("EQ" in query.query) {
+                    return this.equalQuery(query, not, sections);
+                } else if ("GT" in query.query) {
+                    return this.greaterQuery(query, not, sections);
+                } else {
+                    throw new InsightError("get query 3");
+                }
             }
         } else {
             throw new InsightError("get query 2");
@@ -270,7 +276,8 @@ export default class PerformQueryClass {
                             return a[orderKey] - b[orderKey];
                         }
                     }));
-                    return resolve(orderSectionRight);
+                    Log.trace(orderSectionRight);
+                    resolve(orderSectionRight);
                 } else {
                     return resolve(sectionsRightKeys);
                 }
