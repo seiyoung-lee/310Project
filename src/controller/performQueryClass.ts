@@ -237,10 +237,8 @@ export default class PerformQueryClass {
                             return a[orderKey] - b[orderKey];
                         }
                     }));
-                    Log.trace(JSON.stringify(orderSectionRight));
                     return resolve(orderSectionRight);
                 } else {
-                    Log.trace(sectionsRightKeys);
                     return resolve(sectionsRightKeys);
                 }
             } catch (e) {
