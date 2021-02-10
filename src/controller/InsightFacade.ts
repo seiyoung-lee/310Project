@@ -165,29 +165,29 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 let Zip = new JSZip();
                 return Zip.loadAsync(content, {base64: true})
-                .then((result) => {
-                    let promises: Array<Promise<any>> = [];
-                    result.folder("courses").forEach((relativePath, file) => {
-                        promises.push(file.async("string"));
+                    .then((result) => {
+                        let promises: Array<Promise<any>> = [];
+                        result.folder("courses").forEach((relativePath, file) => {
+                            promises.push(file.async("string"));
+                        });
+                        return Promise.all(promises).then((results) =>  {
+                            return this.checkAllKeysCourses(results);
+                        });
+                    }).then((data) => {
+                        if (data.changed) {
+                            this.dict[id] = {
+                                sections: data.values,
+                                type: kind
+                            };
+                            this.writeIntoDisc();
+                            return resolve(Object.keys(this.dict));
+                        } else {
+                            return reject(new InsightError());
+                        }
+                    }).catch((e) => {
+                        Log.trace(e);
+                        reject(new InsightError());
                     });
-                    return Promise.all(promises).then((results) =>  {
-                        return this.checkAllKeysCourses(results);
-                    });
-                }).then((data) => {
-                    if (data.changed) {
-                        this.dict[id] = {
-                            sections: data.values,
-                            type: kind
-                        };
-                        this.writeIntoDisc();
-                        return resolve(Object.keys(this.dict));
-                    } else {
-                       return reject(new InsightError());
-                    }
-                }).catch((e) => {
-                    Log.trace(e);
-                    reject(new InsightError());
-                });
             }
         });
     }

@@ -1,6 +1,5 @@
 import Log from "../Util";
 import { InsightError, QueryValues, ResultTooLargeError } from "./IInsightFacade";
-import ValidateDataset from "./ValidateDataset";
 
 export default class PerformQueryClass {
     private readonly dict: any;
