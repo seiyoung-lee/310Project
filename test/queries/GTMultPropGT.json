@@ -1,0 +1,20 @@
+{
+    "title": "GTMultPropGT",
+    "query": {
+        "WHERE": {
+            "GT": {
+                "courses_avg": 97,
+                "courses_dept": "txt"
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_avg"
+            ],
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+}

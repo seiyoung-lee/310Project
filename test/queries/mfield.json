@@ -1,0 +1,39 @@
+{
+    "title": "mfield",
+    "id": 574,
+    "dept": "cnps",
+    "instructor": "neault, roberta a",
+    "uuid": 87779,
+    "query": {
+        "WHERE": {
+          "AND": [
+            {"GT": 
+            {"courses_avg": 70}},
+            {"GT": 
+            {"courses_pass": 150}},
+            {"GT": 
+            {"courses_fail": 26}},
+            {"GT": 
+            {"courses_audit": 0}},
+            {"GT": 
+            {"courses_year": 2010}}
+          ]
+        },
+        "OPTIONS": {
+          "COLUMNS": [
+            "courses_dept",
+            "courses_id",
+            "courses_avg",
+            "courses_instructor",
+            "courses_title",
+            "courses_pass",
+            "courses_fail",
+            "courses_audit",
+            "courses_uuid",
+            "courses_year"
+          ],
+          "ORDER": "courses_dept"
+        }
+      },
+    "isQueryValid": true,
+    "result":[{"courses_dept":"biol","courses_id":"200","courses_avg":73.7,"courses_instructor":"young, robin","courses_title":"fund cell bio","courses_pass":1174,"courses_fail":95,"courses_audit":1,"courses_uuid":"55065","courses_year":2015},{"courses_dept":"biol","courses_id":"200","courses_avg":71.78,"courses_instructor":"young, robin","courses_title":"fund cell bio","courses_pass":1126,"courses_fail":72,"courses_audit":2,"courses_uuid":"42129","courses_year":2014},{"courses_dept":"biol","courses_id":"112","courses_avg":70.4,"courses_instructor":"benbasat, julyet","courses_title":"unicellular life","courses_pass":190,"courses_fail":30,"courses_audit":1,"courses_uuid":"86114","courses_year":2011},{"courses_dept":"phys","courses_id":"102","courses_avg":73.41,"courses_instructor":"bates, frances;plotkin, steven","courses_title":"elec light & rad","courses_pass":184,"courses_fail":27,"courses_audit":1,"courses_uuid":"5923","courses_year":2013}]}

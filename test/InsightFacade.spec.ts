@@ -458,6 +458,7 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
     });
     it("Add 2 valid dataset that are the same", function () {
         const id: string = "courses";
+        const id2: string = "AllAs";
         const expected: string[] = [id];
         const dummy: Promise<string[]> = insightFacade.addDataset(
             id,
@@ -489,23 +490,23 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
             return expect(result).to.eventually.deep.equal(["courses"]);
         });
     });
-    // it("Add valid dataset remove and check disc", function () {
-    //     const id: string = "courses";
-    //     return insightFacade.addDataset(
-    //         id,
-    //         datasets[id],
-    //         InsightDatasetKind.Courses,
-    //     ).then(() => {
-    //         return insightFacade.removeDataset(id).then(() => {
-    //             const newFacade = new InsightFacade();
-    //             return newFacade.listDatasets().then((list) => {
-    //                 return expect(list).to.have.length(0);
-    //             });
-    //         });
-    //     });
-    // });
     it("Add valid dataset with subdirectory", function () {
         const id: string = "validInsideDirectory";
+        );
+        return expect(dummy)
+            .to.eventually.deep.equal(expected)
+            .then(() => {
+                const expected1: string[] = [id, id2];
+                const Result: Promise<string[]> = insightFacade.addDataset(
+                    id2,
+                    datasets[id2],
+                    InsightDatasetKind.Courses,
+                );
+                return expect(Result).to.eventually.deep.equal(expected1);
+            });
+    });
+    it("Add valid dataset", function () {
+        const id: string = "courses";
         const expected: string[] = [id];
         const dummy: Promise<string[]> = insightFacade.addDataset(
             id,

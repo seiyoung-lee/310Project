@@ -38,7 +38,7 @@ export default class InsightFacade implements IInsightFacade {
         Log.trace("InsightFacadeImpl::init()");
     }
     private notValidIDRemove = (id: string) => {
-        if (id.includes("_") || id.includes("*")) {
+        if (id.includes("_")) {
             return true;
         } else {
             if (id.trim().length === 0) {
@@ -186,7 +186,7 @@ export default class InsightFacade implements IInsightFacade {
                         }
                     }).catch(() => {
                         reject(new InsightError());
-                    });
+                });
             }
         });
     }

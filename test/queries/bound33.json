@@ -1,0 +1,9 @@
+{
+    "title": "bound33",
+    "query": {
+            "EQ": 
+            {"courses_year": 2009}
+            },
+      "isQueryValid": false,
+      "result": "InsightError"
+    }

@@ -27,6 +27,7 @@ export interface ObjectValues {
     uuid: string;
     year: number;
 }
+
 export interface QueryValues {
     id: string;
     query: any;

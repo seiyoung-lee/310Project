@@ -1,0 +1,23 @@
+{
+    "title": "undefined2",
+    "query": {
+        "WHERE": {
+            "AND": [{
+                "GT": {
+                    "courses_avg": 97
+                }
+            },
+            {
+                "LT": {
+                    "courses_avg": 98
+                }
+            }]
+        },
+        "OPTIONS": {
+            "COLUMNS": "undefined",
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+}

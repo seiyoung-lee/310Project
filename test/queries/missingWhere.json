@@ -1,0 +1,16 @@
+{
+  "title": "missingWhere",
+  "query": {
+      "IS": {
+          "courses_dept": "cpsc"
+      },
+    "OPTIONS": {
+        "COLUMNS": [
+            "courses_avg"
+        ],
+        "ORDER": "courses_avg"
+    }
+},
+  "isQueryValid": false,
+  "result": "InsightError"
+}

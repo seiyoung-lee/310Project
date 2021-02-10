@@ -1,0 +1,17 @@
+{
+    "title": "EdgeCase10",
+    "query": {
+        "WHERE": {
+          "OR": [
+            {"IS": 
+            {"courses_dept": false}}
+          ]
+        },
+        "OPTIONS": {
+          "COLUMNS": 123,
+          "ORDER": "courses_dept"
+        }
+      },
+      "isQueryValid": false,
+      "result": "InsightError"
+    }

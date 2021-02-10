@@ -1,0 +1,19 @@
+{
+    "title": "typoOptions",
+    "query": {
+        "WHERE": {
+            "LT": {
+                "courses_avg": 50
+            }
+    },
+        "OPTIONSS": {
+            "COLUMNS": [
+                "courses_dept",
+                "courses_avg"
+            ],
+            "ORDER": "courses_avg"
+        }
+    },
+    "isQueryValid": false,
+    "result": "InsightError"
+  }
