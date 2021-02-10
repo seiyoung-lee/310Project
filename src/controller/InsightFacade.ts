@@ -184,8 +184,7 @@ export default class InsightFacade implements IInsightFacade {
                         } else {
                             return reject(new InsightError());
                         }
-                    }).catch((e) => {
-                        Log.trace(e);
+                    }).catch(() => {
                         reject(new InsightError());
                     });
             }
