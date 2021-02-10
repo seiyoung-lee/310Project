@@ -94,16 +94,9 @@ export default class PerformQueryClass {
                     columns: query.columns,
                     id: query.id
                 };
-                this.getQuery(newQueryOR, not, false, sections).forEach(((value: any) => {
-                    if (!(ret.some((element) => {
-                        return element.uuid === value.uuid;
-                    }))) {
-                        ret.push(value);
-                        if (ret.length >= 5000) {
-                            throw new ResultTooLargeError();
-                        }
-                    }
-                }));
+                const dummyArray = ret.concat(this.getQuery(newQueryOR, not, false, sections));
+                const dummySet = new Set(dummyArray);
+                ret = [...dummySet];
             }
         }
         return ret;
