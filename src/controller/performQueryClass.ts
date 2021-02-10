@@ -1,5 +1,6 @@
 import Log from "../Util";
 import { InsightError, QueryValues, ResultTooLargeError } from "./IInsightFacade";
+import ValidateDataset from "./ValidateDataset";
 
 export default class PerformQueryClass {
     private readonly dict: any;
@@ -7,35 +8,12 @@ export default class PerformQueryClass {
         this.dict = dict;
     }
     private checkOuterQuery = (query: any) => {
-        if (this.isObject(query) && query !== null) {
-            const queryKeys = Object.keys(query);
-            if (queryKeys.includes("WHERE") && queryKeys.includes("OPTIONS") && queryKeys.length === 2) {
-                const options: any = query["OPTIONS"];
-                if (!this.isObject(options)) {
-                    throw new InsightError("outer");
-                }
-                const optionsKeys = Object.keys(options);
-                let length;
-                if ("ORDER" in options) {
-                    length = 2;
-                } else {
-                    length = 1;
-                }
-                if (!(optionsKeys.length === length && "COLUMNS" in options)) {
-                    throw new InsightError("outer 2");
-                } else {
-                    if (!Array.isArray(options["COLUMNS"])) {
-                        throw new InsightError("outer 3");
-                    } else if (length === 2 && !options["COLUMNS"].includes(options["ORDER"])) {
-                        throw new InsightError("outer 4");
-                    }
-                    return length === 2;
-                }
-            } else {
-                throw new InsightError("outer 5");
-            }
+        const validate = new ValidateDataset();
+        const valid: boolean = validate.checkQuery(query, this.dict);
+        if (!valid) {
+            throw new InsightError("not valid");
         } else {
-            throw new InsightError("outer 6");
+            return query["OPTIONS"].hasOwnProperty("ORDER");
         }
     }
     private getColumnsAndDataSet = (columns: string[]) => {
@@ -122,69 +100,105 @@ export default class PerformQueryClass {
     }
     private isQuery(query: any, not: boolean, sections: any[]) {
         const isObject = query.query["IS"];
-        // TODO: asterisk
         const allowedKeys = ["dept", "id", "instructor", "title", "uuid"];
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
-        if (keys.length !== 1
-            || val[0] !== query.id
-            || !allowedKeys.includes(val[1])
-            || typeof(isObject[keys[0]]) === "number") {
-            throw new InsightError("IS QUERY");
-        }
+        if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1])
+            || typeof(isObject[keys[0]]) === "number") { throw new InsightError("IS QUERY"); }
         let ret: any[] = [];
-        if (not) {
-            sections.forEach((section: any) => {
-                if (section[val[1]] !== isObject[keys[0]]) {
-                    ret.push(section);
-                }
-            });
-        } else {
-            sections.forEach((section: any) => {
-                if (section[val[1]] === isObject[keys[0]]) {
-                    ret.push(section);
-                }
-            });
+        let hasAsterisk: boolean = false;
+        let startEndAll: number = -2;
+        const valArray = isObject[keys[0]].split("*");
+        if (isObject[keys[0]].includes("*")) {
+            hasAsterisk = true;
+            if (isObject[keys[0]] === "**" || isObject[keys[0]] === "*") { return sections;
+            } else if (valArray.length === 2) {
+                if (valArray[0] === "") { startEndAll = -1;
+                } else if (valArray[1] === "") { startEndAll = 1;
+                } else { throw new InsightError("invalid asterisk"); }
+            } else if (valArray.length === 3) {
+                if (valArray[0] === "" && valArray[2] === "") { startEndAll = 0;
+                } else { throw new InsightError("invalid asterisk"); }
+            } else { throw new InsightError("invalid asterisk"); }
         }
+        sections.forEach((section: any) => {
+            if (hasAsterisk) {
+                if (startEndAll === -1) {
+                    if (not) {
+                        if (!section[val[1]].endsWith(valArray[1])) { ret.push(section); }
+                    } else { if (section[val[1]].endsWith(valArray[1])) { ret.push(section); }}
+                } else if (startEndAll === 1) {
+                    if (not) {
+                        if (!section[val[1]].startsWith(valArray[0])) { ret.push(section); }
+                    } else { if (section[val[1]].startsWith(valArray[0])) { ret.push(section); } }
+                } else if (startEndAll === 0) {
+                    if (not) {
+                        if (!section[val[1]].includes(valArray[1])) { ret.push(section); }
+                    } else { if (section[val[1]].includes(valArray[1])) { ret.push(section); }}
+                } else { throw new InsightError("invalid asterisk"); }
+            } else if (not && section[val[1]] !== isObject[keys[0]]) {
+                ret.push(section);
+            } else if (!not && section[val[1]] === isObject[keys[0]]) {
+                ret.push(section);
+            }
+        });
         return ret;
     }
     private greaterQuery(query: QueryValues, not: boolean, sections: any[]) {
         const greaterObject = query.query["GT"];
         const val = this.numberQueryValid(greaterObject, query.id);
         let ret: any[] = [];
-        sections.forEach((section: any) => {
-            if (not && section[val[0]] <= greaterObject[val[1]]) {
-                ret.push(section);
-            } else if (!not && section[val[0]] > greaterObject[val[1]]) {
-                ret.push(section);
-            }
-        });
+        if (not) {
+            sections.forEach((section: any) => {
+                if (section[val[0]] <= greaterObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        } else {
+            sections.forEach((section: any) => {
+                if (section[val[0]] > greaterObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        }
         return ret;
     }
     private lessQuery(query: QueryValues, not: boolean, sections: any[]) {
         const lessObject = query.query["LT"];
         const val = this.numberQueryValid(lessObject, query.id);
         let ret: any[] = [];
-        sections.forEach((section: any) => {
-            if (not && section[val[0]] >= lessObject[val[1]]) {
-                ret.push(section);
-            } else if (!not && section[val[0]] < lessObject[val[1]]) {
-                ret.push(section);
-            }
-        });
+        if (not) {
+            sections.forEach((section: any) => {
+                if (section[val[0]] >= lessObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        } else {
+            sections.forEach((section: any) => {
+                if (section[val[0]] < lessObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        }
         return ret;
     }
     private equalQuery(query: QueryValues, not: boolean, sections: any[]) {
         const eqObject = query.query["EQ"];
         const val = this.numberQueryValid(eqObject, query.id);
         let ret: any[] = [];
-        sections.forEach((section: any) => {
-            if (not && section[val[0]] !== eqObject[val[1]]) {
-                ret.push(section);
-            } else if (!not && section[val[0]] === eqObject[val[1]]) {
-                ret.push(section);
-            }
-        });
+        if (not) {
+            sections.forEach((section: any) => {
+                if (section[val[0]] !== eqObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        } else {
+            sections.forEach((section: any) => {
+                if (section[val[0]] === eqObject[val[1]]) {
+                    ret.push(section);
+                }
+            });
+        }
         return ret;
     }
     private isObject = (obj: any) => {
