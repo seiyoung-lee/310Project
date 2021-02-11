@@ -103,10 +103,13 @@ export default class InsightFacade implements IInsightFacade {
                 translatedValues["audit"] = value;
                 return this.isNumber(value) ? translatedValues : false;
             case "Year":
+                if (this.isString(value) && this.stringNumeric(typeof value === "string" ? value : "not")) {
+                    translatedValues["year"] = Number(value);
+                    return translatedValues;
+                } else {
+                    return false;
+                }
                 translatedValues["year"] = value;
-                return this.isString(value) && this.stringNumeric(typeof value === "string" ? value : "not") ?
-                    translatedValues :
-                    false;
             default:
                 throw new Error();
         }

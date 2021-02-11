@@ -47,8 +47,8 @@ export default class PerformQueryClass {
     }
     private OrAndQuery(query: QueryValues, not: boolean, type: string, sections: any[]): any [] {
         const OrAndArray = query.query[type];
-        if (OrAndArray.length === 0) {
-            throw new InsightError("OR AND AND");
+        if (OrAndArray.length === 0 || !Array.isArray(OrAndArray)) {
+            throw new InsightError("OR AND AND error");
         }
         let ret: any[] = [];
         let newQueryOR: QueryValues;
@@ -86,7 +86,8 @@ export default class PerformQueryClass {
         if (keys.length !== 1
             || val[0] !== id
             || !allowedKeys.includes(val[1])
-            || typeof(query[keys[0]]) === "string") {
+            || typeof(query[keys[0]]) !== "number"
+            || query[keys[0]] === null) {
             throw new InsightError("NUMBER QUERY VALID");
         }
         return [val[1], keys[0]];
@@ -97,12 +98,14 @@ export default class PerformQueryClass {
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
         if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1])
-            || typeof(isObject[keys[0]]) === "number") { throw new InsightError("IS QUERY"); }
+            || typeof(isObject[keys[0]]) !== "string"
+            || isObject[keys[0]] === null) { throw new InsightError("IS QUERY"); }
         let ret: any[] = [];
         let hasAsterisk: boolean = false;
         let startEndAll: number = -2;
-        const valArray = isObject[keys[0]].split("*");
+        let valArray: string[] = [];
         if (isObject[keys[0]].includes("*")) {
+            valArray = isObject[keys[0]].split("*");
             hasAsterisk = true;
             if (isObject[keys[0]] === "**" || isObject[keys[0]] === "*") { return sections;
             } else if (valArray.length === 2) {

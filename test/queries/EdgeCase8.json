@@ -3,7 +3,7 @@
     "query": {
         "WHERE": {
           "OR": [
-            {"IS": 
+            {"IS":
             {"courses_dept": ["str"]}}
           ]
         },
@@ -25,4 +25,4 @@
       },
       "isQueryValid": false,
       "result": "InsightError"
-    }
+}

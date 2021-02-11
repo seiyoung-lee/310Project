@@ -1,4 +1,5 @@
 import Log from "../Util";
+import {InsightError} from "./IInsightFacade";
 export default class ValidateDataset {
     private globalID: string;
     private readonly allKeys: string[];
@@ -7,42 +8,44 @@ export default class ValidateDataset {
         this.allKeys = ["fail", "pass", "avg", "year", "audit", "course", "uuid", "instructor", "title", "id", "dept"];
     }
     public checkWhere(query: any, dict: any): boolean {
-        if (typeof query !== "object") {
-            return false; }
-        if (Array.isArray(query)) {
-            return false; }
+        if (typeof query !== "object" || query === null) {
+            return false;
+        }
+        if (Array.isArray(query)) { return false; }
         let keyNumbers: string[] = ["fail", "pass", "avg", "year", "audit"];
         let keyStrings: string[] = ["course", "uuid", "instructor", "title", "id", "dept"];
         let moreThanOne = false;
         let wentIn = false;
         for (let key in query) {
             wentIn = true;
-            if (moreThanOne) {
-                return false; }
+            if (moreThanOne) { return false; }
             moreThanOne = true;
-            let cleanKey: string[] = key.split("_");
-            if (this.globalID === "") {
-                this.globalID = cleanKey[0];
-            } else {
-                if (cleanKey[0] !== this.globalID) {
+            try {
+                let cleanKey: string[] = key.split("_");
+                if (this.globalID === "") {
+                    this.globalID = cleanKey[0];
+                } else {
+                    if (cleanKey[0] !== this.globalID) {
+                        return false;
+                    }
+                }
+                if (cleanKey.length !== 2) {
                     return false;
                 }
-            }
-            if (cleanKey.length !== 2) {
-                return false;
-            }
-            if (!(this.allKeys.includes(cleanKey[1]))) {
-                return false;
-            }
-            if (cleanKey[1] in keyNumbers && typeof query[key] !== "number") {
-                return false;
-            }
-            if (cleanKey[1] in keyStrings && typeof query[key] !== "string") {
-                return false;
+                if (!(this.allKeys.includes(cleanKey[1]))) {
+                    return false;
+                }
+                if (cleanKey[1] in keyNumbers && typeof query[key] !== "number") {
+                    return false;
+                }
+                if (cleanKey[1] in keyStrings && typeof query[key] !== "string") {
+                    return false;
+                }
+            } catch (e) {
+                throw new InsightError();
             }
         }
         if (!wentIn) {
-
             return false;
         }
         return true;
@@ -54,11 +57,12 @@ export default class ValidateDataset {
 
         if (query.length === 0) {
             return false; }
-        query.forEach((object: any) => {
+        for (const object of query) {
             let moreThanOne = false;
             for (let index in object) {
                 if (moreThanOne) {
-                    return false; }
+                    return false;
+                }
                 moreThanOne = true;
                 if (index === "AND") {
                     return this.checkAndOr(object[index], dict);
@@ -66,7 +70,6 @@ export default class ValidateDataset {
                     return this.checkAndOr(object[index], dict);
                 } else if (["GT", "EQ", "LT", "IS"].includes(index)) {
                     if (!(this.checkWhere(object[index], dict))) {
-
                         return false;
                     }
                 } else if (index === "NOT") {
@@ -79,52 +82,65 @@ export default class ValidateDataset {
                     return false;
                 }
             }
-        });
+        }
         return true;
     }
 
     public checkOrder(query: any, columns: string[], orderKeys: string): string {
         if (typeof query !== "string") { return orderKeys; }
         if (!columns.includes(query)) { return orderKeys; }
-        let cleanKey = query.split("_");
-        if (cleanKey.length !== 2) { return orderKeys; }
-        if (this.globalID === "") {
-            this.globalID = cleanKey[0];
-        } else {
-            if (cleanKey[0] !== this.globalID) {
-                return orderKeys;
-            }
-        }
-        if (cleanKey.length !== 2 || !(this.allKeys.includes(cleanKey[1]))) {
-            return orderKeys;
-        } else {
-            orderKeys = query;
-            return orderKeys;
-        }
-    }
-
-    public checkColumns(query: any, orderKeys: string, dict: any): boolean {
-        query.forEach((key: string) => {
-            let cleanKey: string[] = key.split("_");
+        try {
+            let cleanKey = query.split("_");
+            if (cleanKey.length !== 2) { return orderKeys; }
             if (this.globalID === "") {
                 this.globalID = cleanKey[0];
             } else {
                 if (cleanKey[0] !== this.globalID) {
-                    return false;
+                    return orderKeys;
                 }
             }
-            if (cleanKey.length !== 2) {
-                return false;
-            }
-            if (!(this.allKeys.includes(cleanKey[1]))) {
-                return false;
+            if (cleanKey.length !== 2 || !(this.allKeys.includes(cleanKey[1]))) {
+                return orderKeys;
             } else {
-                if (orderKeys.length !== 0 && !(cleanKey[1] === orderKeys)) {
-                    return false;
-                }
+                orderKeys = query;
+                return orderKeys;
             }
-        }) ;
-        return true;
+        } catch (e) {
+            throw new InsightError();
+        }
+    }
+
+    public checkColumns(query: any, orderKeys: string, dict: any): boolean {
+        let ret = true;
+        for (const key of query) {
+            try {
+                let cleanKey: string[] = key.split("_");
+                if (this.globalID === "") {
+                    this.globalID = cleanKey[0];
+                } else {
+                    if (cleanKey[0] !== this.globalID) {
+                        ret = false;
+                        break;
+                    }
+                }
+                if (cleanKey.length !== 2) {
+                    ret = false;
+                    break;
+                }
+                if (this.allKeys.indexOf(cleanKey[1]) <= -1) {
+                    ret = false;
+                    break;
+                } else {
+                    if (orderKeys.length !== 0 && !(cleanKey[1] === orderKeys)) {
+                        ret = false;
+                        break;
+                    }
+                }
+            } catch (e) {
+                throw new InsightError();
+            }
+        }
+        return ret;
     }
 
     public checkNot(query: any, dict: any): boolean {
@@ -158,7 +174,7 @@ export default class ValidateDataset {
 
     public checkQuery(inputQuery: any, dict: any): boolean {
         if (typeof inputQuery === "undefined" || typeof inputQuery !== "object" ||
-            inputQuery == null || Object.keys(inputQuery).length <= 1) {
+            inputQuery == null || Object.keys(inputQuery).length <= 1 || Object.keys(inputQuery).length > 2) {
             return false; }
         if (!inputQuery.hasOwnProperty("WHERE")) {
         return false; }
@@ -198,11 +214,11 @@ export default class ValidateDataset {
         let orderKeys: string = "";
         if (!(Array.isArray(inputQuery["OPTIONS"]["COLUMNS"]))) { return false; }
         if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) { return false; }
+        if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], orderKeys, dict))) { return false; }
         if ("ORDER" in inputQuery["OPTIONS"]) {
             orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], inputQuery["OPTIONS"]["COLUMNS"], orderKeys);
             if (orderKeys.length === 0) { return false; }
         }
-        if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], orderKeys, dict))) { return false; }
         return true;
     }
 }
