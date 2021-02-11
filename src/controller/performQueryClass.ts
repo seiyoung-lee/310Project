@@ -242,7 +242,7 @@ export default class PerformQueryClass {
                     return resolve(sectionsRightKeys);
                 }
             } catch (e) {
-                reject(e);
+                return reject(e);
             }
         });
     }
