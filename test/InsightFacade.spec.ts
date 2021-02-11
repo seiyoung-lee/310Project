@@ -492,18 +492,13 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
     });
     it("Add valid dataset with subdirectory", function () {
         const id: string = "validInsideDirectory";
+        const expected: string[] = [id];
+        const dummy: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
         );
-        return expect(dummy)
-            .to.eventually.deep.equal(expected)
-            .then(() => {
-                const expected1: string[] = [id, id2];
-                const Result: Promise<string[]> = insightFacade.addDataset(
-                    id2,
-                    datasets[id2],
-                    InsightDatasetKind.Courses,
-                );
-                return expect(Result).to.eventually.deep.equal(expected1);
-            });
+        return expect(dummy).to.eventually.deep.equal(expected);
     });
     it("Add valid dataset", function () {
         const id: string = "courses";
