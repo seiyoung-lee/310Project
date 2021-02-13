@@ -1,16 +1,21 @@
 {
-    "title": "SELECT dept, avg WHERE avg < 62 and id 421",
+    "title": "SELECT dept, id, avg WHERE avg > 90 && id == '' ORDER BY avg",
     "query": {
         "WHERE": {
             "AND": [
                 {
+                    "GT": {
+                        "courses_avg": 0
+                    }
+                },
+                {
                     "LT": {
-                        "courses_avg": 62
+                        "courses_avg": 100
                     }
                 },
                 {
                     "IS": {
-                        "courses_id": "421"
+                        "courses_id": ""
                     }
                 }
             ]
@@ -18,12 +23,12 @@
         "OPTIONS": {
             "COLUMNS": [
                 "courses_dept",
-                "courses_avg",
-                "courses_id"
+                "courses_id",
+                "courses_avg"
             ],
             "ORDER": "courses_avg"
         }
     },
     "isQueryValid": true,
-    "result":[{"courses_dept":"frst","courses_avg":61.5,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"},{"courses_dept":"math","courses_avg":61.75,"courses_id":"421"}]
+    "result":[]
 }

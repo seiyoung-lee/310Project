@@ -5,9 +5,10 @@ import {
     InsightDatasetKind,
     InsightError,
     NotFoundError,
-    ObjectValues
+    ObjectValues,
+    QueryValues
 } from "./IInsightFacade";
-import ValidateDataset from "./ValidateDataset";
+import PerformQueryClass from "./performQueryClass";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
@@ -36,7 +37,6 @@ export default class InsightFacade implements IInsightFacade {
         }
         Log.trace("InsightFacadeImpl::init()");
     }
-
     private notValidIDRemove = (id: string) => {
         if (id.includes("_")) {
             return true;
@@ -48,12 +48,8 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-
     private notValidID = (id: string, kind: InsightDatasetKind) => {
         if (kind === InsightDatasetKind.Rooms) {
-            return true;
-        }
-        if (id.includes("_")) {
             return true;
         } else {
             if (id in this.dict) {
@@ -63,95 +59,140 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-
     private writeIntoDisc = () => {
         const stringData = JSON.stringify(this.dict);
         const writeDir = path.join(this.cacheDir, "./disc.json");
         fs.writeFileSync( writeDir, stringData);
     }
-
+    private isNumber = (val: any) => {
+        return(typeof (val) === "number");
+    }
+    private isString = (val: any) => {
+        return(typeof (val) === "string");
+    }
+    private stringNumeric = (val: string) => {
+        return /^\d+$/.test(val);
+    }
+    private datasetOrganizer = (key: string, translatedValues: any, value: number | string) => {
+        switch (key) {
+            case "Course":
+                translatedValues["id"] = value;
+                return this.isString(value) ? translatedValues : false;
+            case "id":
+                translatedValues["uuid"] = `${value}`;
+                return this.isNumber(value) ? translatedValues : false;
+            case "Subject":
+                translatedValues["dept"] = value;
+                return this.isString(value) ? translatedValues : false;
+            case "Professor":
+                translatedValues["instructor"] = value;
+                return this.isString(value) ? translatedValues : false;
+            case "Avg":
+                translatedValues["avg"] = value;
+                return this.isNumber(value) ? translatedValues : false;
+            case "Title":
+                translatedValues["title"] = value;
+                return this.isString(value) ? translatedValues : false;
+            case "Fail":
+                translatedValues["fail"] = value;
+                return this.isNumber(value) ? translatedValues : false;
+            case "Pass":
+                translatedValues["pass"] = value;
+                return this.isNumber(value) ? translatedValues : false;
+            case "Audit":
+                translatedValues["audit"] = value;
+                return this.isNumber(value) ? translatedValues : false;
+            case "Year":
+                if (this.isString(value) && this.stringNumeric(typeof value === "string" ? value : "not")) {
+                    translatedValues["year"] = Number(value);
+                    return translatedValues;
+                } else {
+                    return false;
+                }
+                translatedValues["year"] = value;
+            default:
+                throw new Error();
+        }
+    }
+    private jsonContentParser = (jsonContent: any, allData: {changed: boolean; values: ObjectValues[]}) => {
+        const keys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail", "Audit", "id", "Year", "Subject"];
+        if ("result" in jsonContent) {
+            if (!(jsonContent.result.length === 0)) {
+                jsonContent.result.forEach((values: any) => {
+                    let translatedValues: any = {};
+                    for (const key of keys) {
+                        if (key in values) {
+                            if (key === "Year") {
+                                if (values["Section"] === "overall") {
+                                    translatedValues = this.datasetOrganizer(key, translatedValues, "1900");
+                                } else {
+                                    translatedValues = this.datasetOrganizer(key, translatedValues, values[key]);
+                                }
+                            } else {
+                                translatedValues = this.datasetOrganizer(key, translatedValues, values[key]);
+                            }
+                            if (!translatedValues) {
+                                translatedValues = {};
+                                break;
+                            }
+                        } else {
+                            translatedValues = {};
+                            break;
+                        }
+                    }
+                    if (Object.keys(translatedValues).length !== 0) {
+                        allData.changed = true;
+                        allData["values"].push(translatedValues);
+                    }
+                });
+            }
+        }
+        return allData;
+    }
     private checkAllKeysCourses = (results: any[]) => {
         let allData: {changed: boolean; values: ObjectValues[]} = {
             changed: false, values: []
         };
-        const keys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail", "Audit", "id", "Year", "Subject"];
         results.forEach((r) => {
             if (r.includes("result")) {
                 const jsonContent = JSON.parse(r);
-                if ("result" in jsonContent) {
-                    if (!(jsonContent.result.length === 0)) {
-                        jsonContent.result.forEach((values: any) => {
-                            let translatedValues: any = {};
-                            for (const key of keys) {
-                                if (key in values) {
-                                    switch (key) {
-                                        case "Course":
-                                            translatedValues["id"] = values[key];
-                                            break;
-                                        case "id":
-                                            translatedValues["uuid"] = values[key];
-                                            break;
-                                        case "Subject":
-                                            translatedValues["dept"] = values[key];
-                                            break;
-                                        case "Professor":
-                                            translatedValues["instructor"] = values[key];
-                                            break;
-                                        default:
-                                            translatedValues[key.toLowerCase()] = values[key];
-                                            break;
-                                    }
-                                } else {
-                                    translatedValues = {};
-                                    break;
-                                }
-                            }
-                            if (Object.keys(translatedValues).length !== 0) {
-                                allData.changed = true;
-                                allData["values"].push(translatedValues);
-                            }
-                        });
-                    }
-                }
+                allData = this.jsonContentParser(jsonContent, allData);
             }
         });
         return allData;
     }
-
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             if (this.notValidID(id, kind)) {
-                reject(new InsightError());
+                return reject(new InsightError());
             } else {
                 let Zip = new JSZip();
                 return Zip.loadAsync(content, {base64: true})
-                .then((result) => {
-                    let promises: Array<Promise<any>> = [];
-                    result.folder("courses").forEach((relativePath, file) => {
-                        promises.push(file.async("string"));
-                    });
-                    return Promise.all(promises).then((results) =>  {
-                        return this.checkAllKeysCourses(results);
-                    });
-                }).then((data) => {
-                    if (data.changed) {
-                        this.dict[id] = {
-                            sections: data.values,
-                            type: kind
-                        };
-                        this.writeIntoDisc();
-                        return resolve(Object.keys(this.dict));
-                    } else {
-                       reject(new InsightError());
-                    }
-                }).catch((e) => {
-                    Log.trace(e);
-                    reject(new InsightError());
+                    .then((result) => {
+                        let promises: Array<Promise<any>> = [];
+                        result.folder("courses").forEach((relativePath, file) => {
+                            promises.push(file.async("string"));
+                        });
+                        return Promise.all(promises).then((results) =>  {
+                            return this.checkAllKeysCourses(results);
+                        });
+                    }).then((data) => {
+                        if (data.changed) {
+                            this.dict[id] = {
+                                sections: data.values,
+                                type: kind
+                            };
+                            this.writeIntoDisc();
+                            return resolve(Object.keys(this.dict));
+                        } else {
+                            return reject(new InsightError());
+                        }
+                    }).catch(() => {
+                        reject(new InsightError());
                 });
             }
         });
     }
-
     public removeDataset(id: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             if (this.notValidIDRemove(id)) {
@@ -167,24 +208,12 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
     public performQuery(query: any): Promise<any[]> {
-        let validate: ValidateDataset = new ValidateDataset();
-        let valid: boolean = validate.checkQuery(query, this.dict);
-        return new Promise<string[]>( (resolve, reject) => {
-            if (!valid) {
-                return reject(new InsightError());
-            } else {
-                // where -> ["AND", "OR", "GT", "EQ", "LT", "IS", "NOT"] -> this.dict.keys
-                // options -> ["COLUMNS", "ORDER"] -> this.dict.keys
-
-            return reject("Not implemented.");
-        }
-        });
+        let pqc = new PerformQueryClass(this.dict);
+        return pqc.performQuery(query);
     }
-
     public listDatasets(): Promise<InsightDataset[]> {
-        return new Promise<InsightDataset[]>((resolve, reject) => {
+        return new Promise<InsightDataset[]>((resolve) => {
             const keys = Object.keys(this.dict);
             let ret: InsightDataset[] = [];
             keys.forEach((key) => {

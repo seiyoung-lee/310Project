@@ -3,25 +3,25 @@
     "query": {
         "WHERE": {
           "OR": [
-            {"IS": 
+            {"IS":
             {"courses_dept": "cnps"}},
             {"IS":
             {"courses_id": "574"}},
-            {"EQ": 
+            {"EQ":
             {"courses_avg": 97.47}},
-            {"IS": 
+            {"IS":
             {"courses_instructor": "neault, roberta a"}},
-            {"IS": 
+            {"IS":
             {"courses_title": "career planning"}},
-            {"EQ": 
+            {"EQ":
             {"courses_pass": 15}},
-            {"EQ": 
+            {"EQ":
             {"courses_fail": 0}},
-            {"EQ": 
+            {"EQ":
             {"courses_audit": 0}},
-            {"IS": 
+            {"IS":
             {"courses_uuid": "87779"}},
-            {"EQ": 
+            {"EQ":
             {"courses_year": 2009}}
           ]
         },
@@ -42,5 +42,5 @@
         }
       },
       "isQueryValid": false,
-      "result": "InsightError"
+      "result": "ResultTooLargeError"
     }
