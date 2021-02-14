@@ -38,7 +38,7 @@ export default class InsightFacade implements IInsightFacade {
         Log.trace("InsightFacadeImpl::init()");
     }
     private notValidIDRemove = (id: string) => {
-        if (id.includes("_")) {
+        if (id === null || typeof id === "undefined" || id.includes("_")) {
             return true;
         } else {
             if (id.trim().length === 0) {
@@ -49,7 +49,7 @@ export default class InsightFacade implements IInsightFacade {
         }
     }
     private notValidID = (id: string, kind: InsightDatasetKind) => {
-        if (kind === InsightDatasetKind.Rooms) {
+        if (kind !== InsightDatasetKind.Courses) {
             return true;
         } else {
             if (id in this.dict) {
@@ -109,7 +109,6 @@ export default class InsightFacade implements IInsightFacade {
                 } else {
                     return false;
                 }
-                translatedValues["year"] = value;
             default:
                 throw new Error();
         }
@@ -188,7 +187,7 @@ export default class InsightFacade implements IInsightFacade {
                             return reject(new InsightError());
                         }
                     }).catch(() => {
-                        reject(new InsightError());
+                        return reject(new InsightError());
                 });
             }
         });
@@ -203,7 +202,7 @@ export default class InsightFacade implements IInsightFacade {
                 } else {
                     delete this.dict[id];
                     this.writeIntoDisc();
-                    resolve(id);
+                    return resolve(id);
                 }
             }
         });
