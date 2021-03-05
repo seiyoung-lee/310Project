@@ -37,6 +37,7 @@ export default class InsightFacade implements IInsightFacade {
         }
         Log.trace("InsightFacadeImpl::init()");
     }
+
     private notValidIDRemove = (id: string) => {
         if (id === null || typeof id === "undefined" || id.includes("_")) {
             return true;
@@ -48,6 +49,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
+
     private notValidID = (id: string, kind: InsightDatasetKind) => {
         if (kind !== InsightDatasetKind.Courses) {
             return true;
@@ -59,20 +61,25 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
+
     private writeIntoDisc = () => {
         const stringData = JSON.stringify(this.dict);
         const writeDir = path.join(this.cacheDir, "./disc.json");
         fs.writeFileSync( writeDir, stringData);
     }
+
     private isNumber = (val: any) => {
         return(typeof (val) === "number");
     }
+
     private isString = (val: any) => {
         return(typeof (val) === "string");
     }
+
     private stringNumeric = (val: string) => {
         return /^\d+$/.test(val);
     }
+
     private datasetOrganizer = (key: string, translatedValues: any, value: number | string) => {
         switch (key) {
             case "Course":
@@ -113,6 +120,7 @@ export default class InsightFacade implements IInsightFacade {
                 throw new Error();
         }
     }
+
     private jsonContentParser = (jsonContent: any, allData: {changed: boolean; values: ObjectValues[]}) => {
         const keys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail", "Audit", "id", "Year", "Subject"];
         if ("result" in jsonContent) {
@@ -148,6 +156,7 @@ export default class InsightFacade implements IInsightFacade {
         }
         return allData;
     }
+
     private checkAllKeysCourses = (results: any[]) => {
         let allData: {changed: boolean; values: ObjectValues[]} = {
             changed: false, values: []
@@ -160,6 +169,7 @@ export default class InsightFacade implements IInsightFacade {
         });
         return allData;
     }
+
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             if (this.notValidID(id, kind)) {
@@ -192,6 +202,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
+
     public removeDataset(id: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             if (this.notValidIDRemove(id)) {
@@ -207,10 +218,12 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
+
     public performQuery(query: any): Promise<any[]> {
         let pqc = new PerformQueryClass(this.dict);
         return pqc.performQuery(query);
     }
+
     public listDatasets(): Promise<InsightDataset[]> {
         return new Promise<InsightDataset[]>((resolve) => {
             const keys = Object.keys(this.dict);
