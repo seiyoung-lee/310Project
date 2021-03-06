@@ -75,7 +75,7 @@ export default class PerformQueryClass {
     }
 
     private numberQueryValid(query: any, id: string) {
-        const allowedKeys = ["avg", "pass", "fail", "audit", "year"];
+        const allowedKeys = ["avg", "pass", "fail", "audit", "year"]; // change? already setup in dtc
         const keys = Object.keys(query);
         const val = keys[0].split("_");
         if (keys.length !== 1 || val[0] !== id || !allowedKeys.includes(val[1]) || typeof(query[keys[0]]) !== "number"
@@ -87,7 +87,7 @@ export default class PerformQueryClass {
 
     private isQuery(query: any, not: boolean, sections: any[]) {
         const isObject = query.query["IS"];
-        const allowedKeys = ["dept", "id", "instructor", "title", "uuid"];
+        const allowedKeys = ["dept", "id", "instructor", "title", "uuid"]; // change? already setup in dtc
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
         if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1]) ||
@@ -266,10 +266,8 @@ export default class PerformQueryClass {
             try {
                 const hasOrder = this.checkOuterQuery(query);
                 const columnsForSections = this.getColumnsAndDataSet(query["OPTIONS"]["COLUMNS"]);
-                const myQuery: QueryValues = {
-                    query: query["WHERE"],
-                    columns: columnsForSections["columns"],
-                    id: columnsForSections["datasetID"]
+                const myQuery: QueryValues = { query: query["WHERE"],
+                    columns: columnsForSections["columns"], id: columnsForSections["datasetID"]
                 };
                 const sections = this.dict[columnsForSections["datasetID"]].sections;
                 const theQuery = this.getQuery(myQuery, false, true, sections);
@@ -279,6 +277,7 @@ export default class PerformQueryClass {
                 const sectionsRightKeys = this.getRightKeys(myQuery, theQuery);
                 if (hasOrder) {
                     const orderKey: string = query["OPTIONS"]["ORDER"];
+                    // has to get changed manually by andres
                     const orderSectionRight = sectionsRightKeys.sort(((a: any, b: any) => {
                         if (orderKey.includes("dept") || orderKey.includes("id") || orderKey.includes("instructor")
                             || orderKey.includes("uuid") || orderKey.includes("title")) {
