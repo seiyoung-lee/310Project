@@ -1,7 +1,4 @@
-import Log from "../Util";
 import { InsightError, QueryValues, ResultTooLargeError, InsightDatasetKind } from "./IInsightFacade";
-import ValidateDataset from "./ValidateDataset";
-import PerformQueryClass from "./PerformQueryClass";
 
 export default class DatasetTypeController {
     // except for those specified, all functions can be used for both rooms and courses
