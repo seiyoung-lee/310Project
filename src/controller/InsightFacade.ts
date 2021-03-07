@@ -9,6 +9,7 @@ import {
     QueryValues
 } from "./IInsightFacade";
 import PerformQueryClass from "./performQueryClass";
+import DatasetTypeController from "./DatasetTypeController";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
@@ -68,61 +69,10 @@ export default class InsightFacade implements IInsightFacade {
         fs.writeFileSync( writeDir, stringData);
     }
 
-    private isNumber = (val: any) => {
-        return(typeof (val) === "number");
-    }
-
-    private isString = (val: any) => {
-        return(typeof (val) === "string");
-    }
-
-    private stringNumeric = (val: string) => {
-        return /^\d+$/.test(val);
-    }
-
-    private datasetOrganizer = (key: string, translatedValues: any, value: number | string) => {
-        switch (key) {
-            case "Course":
-                translatedValues["id"] = value;
-                return this.isString(value) ? translatedValues : false;
-            case "id":
-                translatedValues["uuid"] = `${value}`;
-                return this.isNumber(value) ? translatedValues : false;
-            case "Subject":
-                translatedValues["dept"] = value;
-                return this.isString(value) ? translatedValues : false;
-            case "Professor":
-                translatedValues["instructor"] = value;
-                return this.isString(value) ? translatedValues : false;
-            case "Avg":
-                translatedValues["avg"] = value;
-                return this.isNumber(value) ? translatedValues : false;
-            case "Title":
-                translatedValues["title"] = value;
-                return this.isString(value) ? translatedValues : false;
-            case "Fail":
-                translatedValues["fail"] = value;
-                return this.isNumber(value) ? translatedValues : false;
-            case "Pass":
-                translatedValues["pass"] = value;
-                return this.isNumber(value) ? translatedValues : false;
-            case "Audit":
-                translatedValues["audit"] = value;
-                return this.isNumber(value) ? translatedValues : false;
-            case "Year":
-                if (this.isString(value) && this.stringNumeric(typeof value === "string" ? value : "not")) {
-                    translatedValues["year"] = Number(value);
-                    return translatedValues;
-                } else {
-                    return false;
-                }
-            default:
-                throw new Error();
-        }
-    }
-
-    private jsonContentParser = (jsonContent: any, allData: {changed: boolean; values: ObjectValues[]}) => {
-        const keys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail", "Audit", "id", "Year", "Subject"];
+    private jsonContentParser = (kind: InsightDatasetKind, jsonContent: any,
+                                 allData: {changed: boolean; values: ObjectValues[]}) => {
+        let dtc = new DatasetTypeController();
+        const keys = dtc.getCourseDatasetAllKeys();
         if ("result" in jsonContent) {
             if (!(jsonContent.result.length === 0)) {
                 jsonContent.result.forEach((values: any) => {
@@ -131,12 +81,12 @@ export default class InsightFacade implements IInsightFacade {
                         if (key in values) {
                             if (key === "Year") {
                                 if (values["Section"] === "overall") {
-                                    translatedValues = this.datasetOrganizer(key, translatedValues, "1900");
+                                    translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, "1900");
                                 } else {
-                                    translatedValues = this.datasetOrganizer(key, translatedValues, values[key]);
+                                    translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, values[key]);
                                 }
                             } else {
-                                translatedValues = this.datasetOrganizer(key, translatedValues, values[key]);
+                                translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, values[key]);
                             }
                             if (!translatedValues) {
                                 translatedValues = {};
@@ -157,14 +107,14 @@ export default class InsightFacade implements IInsightFacade {
         return allData;
     }
 
-    private checkAllKeysCourses = (results: any[]) => {
+    private checkAllKeysCourses = (kind: InsightDatasetKind, results: any[]) => {
         let allData: {changed: boolean; values: ObjectValues[]} = {
             changed: false, values: []
         };
         results.forEach((r) => {
             if (r.includes("result")) {
                 const jsonContent = JSON.parse(r);
-                allData = this.jsonContentParser(jsonContent, allData);
+                allData = this.jsonContentParser(kind, jsonContent, allData);
             }
         });
         return allData;
@@ -183,7 +133,7 @@ export default class InsightFacade implements IInsightFacade {
                             promises.push(file.async("string"));
                         });
                         return Promise.all(promises).then((results) =>  {
-                            return this.checkAllKeysCourses(results);
+                            return this.checkAllKeysCourses(kind, results);
                         });
                     }).then((data) => {
                         if (data.changed) {
@@ -197,7 +147,7 @@ export default class InsightFacade implements IInsightFacade {
                             return reject(new InsightError());
                         }
                     }).catch(() => {
-                        return reject(new InsightError());
+                        return reject(new InsightError(1234));
                 });
             }
         });
