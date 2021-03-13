@@ -1,5 +1,6 @@
 import {InsightError} from "./IInsightFacade";
 import Log from "../Util";
+import * as parse5 from "parse5";
 
 /**
  * Collection of logging methods. Useful for making the output easier to read and understand.
@@ -9,6 +10,10 @@ export default class Lib {
         return sections.sort(((a: any, b: any) => {
             return a[orderKey] > b[orderKey] ? 1 : a[orderKey] < b[orderKey] ? -1 : 0;
         }));
+    }
+
+    public static parseHTML(html: string): Promise<any> {
+        return Promise.resolve(parse5.parse(html));
     }
 
     private static sortGivenSections(orderKeys: string[], sections: any, dir: string): any[] {

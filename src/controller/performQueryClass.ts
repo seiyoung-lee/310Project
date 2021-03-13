@@ -1,21 +1,16 @@
-import { InsightError, QueryValues, ResultTooLargeError } from "./IInsightFacade";
+import {InsightDatasetKind,
+    InsightError, QueryValues, ResultTooLargeError} from "./IInsightFacade";
 import ValidateDataset from "./ValidateDataset";
+import PerformQueryHelper from "./PerformQueryHelper";
 import Lib from "./Lib";
+import Log from "../Util";
 
 export default class PerformQueryClass {
     private readonly dict: any;
+    private keyStrings: string[];
+    private keyNumbers: string[];
     constructor(dict: any) {
         this.dict = dict;
-    }
-
-    private checkOuterQuery = (query: any) => {
-        const validate = new ValidateDataset();
-        const valid: boolean = validate.checkQuery(query, this.dict);
-        if (!valid) {
-            throw new InsightError("not valid");
-        } else {
-            return query["OPTIONS"].hasOwnProperty("ORDER");
-        }
     }
 
     private getColumnsAndDataSet = (columns: string[]) => {
@@ -44,6 +39,7 @@ export default class PerformQueryClass {
                     }
                 }
             });
+            Log.trace(id);
             return { datasetID: id, columns: keys };
         }
     }
@@ -75,23 +71,11 @@ export default class PerformQueryClass {
         return ret;
     }
 
-    private numberQueryValid(query: any, id: string) {
-        const allowedKeys = ["avg", "pass", "fail", "audit", "year"]; // change? already setup in dtc
-        const keys = Object.keys(query);
-        const val = keys[0].split("_");
-        if (keys.length !== 1 || val[0] !== id || !allowedKeys.includes(val[1]) || typeof(query[keys[0]]) !== "number"
-            || query[keys[0]] === null) {
-            throw new InsightError("NUMBER QUERY VALID");
-        }
-        return [val[1], keys[0]];
-    }
-
     private isQuery(query: any, not: boolean, sections: any[]) {
         const isObject = query.query["IS"];
-        const allowedKeys = ["dept", "id", "instructor", "title", "uuid"]; // change? already setup in dtc
         const keys = Object.keys(isObject);
         const val = keys[0].split("_");
-        if (keys.length !== 1 || val[0] !== query.id || !allowedKeys.includes(val[1]) ||
+        if (keys.length !== 1 || val[0] !== query.id || !this.keyStrings.includes(val[1]) ||
             typeof(isObject[keys[0]]) !== "string" || isObject[keys[0]] === null) {
                 throw new InsightError("IS QUERY");
         }
@@ -186,6 +170,17 @@ export default class PerformQueryClass {
         return ret;
     }
 
+    private numberQueryValid(query: any, id: string) {
+        const keys = Object.keys(query);
+        const val = keys[0].split("_");
+        Log.trace(val);
+        if (keys.length !== 1 || val[0] !== id || !this.keyNumbers.includes(val[1])
+            || typeof (query[keys[0]]) !== "number" || query[keys[0]] === null) {
+            throw new InsightError("NUMBER QUERY VALID");
+        }
+        return [val[1], keys[0]];
+    }
+
     private lessQuery(query: QueryValues, not: boolean, sections: any[]) {
         const lessObject = query.query["LT"];
         const val = this.numberQueryValid(lessObject, query.id);
@@ -265,7 +260,10 @@ export default class PerformQueryClass {
     public performQuery(query: any): Promise<any[]> {
         return new Promise<any[]>((resolve, reject) => {
             try {
-                const hasOrder = this.checkOuterQuery(query);
+                const pqh = new PerformQueryHelper();
+                const hasOrder = pqh.checkOuterQuery(query, this.dict);
+                this.keyNumbers = pqh.getKeyNums();
+                this.keyStrings = pqh.getKeyStrs();
                 const columnsForSections = this.getColumnsAndDataSet(query["OPTIONS"]["COLUMNS"]);
                 const myQuery: QueryValues = { query: query["WHERE"],
                     columns: columnsForSections["columns"], id: columnsForSections["datasetID"]

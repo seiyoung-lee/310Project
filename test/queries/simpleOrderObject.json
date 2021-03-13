@@ -13,7 +13,7 @@
             ],
             "ORDER": {
                 "dir": "UP",
-                "keys": ["courses_avg", "courses_avg"]
+                "keys": ["courses_avg"]
             }
         }
     },

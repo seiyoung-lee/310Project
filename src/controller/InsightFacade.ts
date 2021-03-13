@@ -5,14 +5,15 @@ import {
     InsightDatasetKind,
     InsightError,
     NotFoundError,
-    ObjectValues,
-    QueryValues
 } from "./IInsightFacade";
 import PerformQueryClass from "./performQueryClass";
 import DatasetTypeController from "./DatasetTypeController";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
+import {IDataSetCreator} from "./IDataSetCreator";
+import CoursesDataSetCreator from "./CoursesDataSetCreator";
+import RoomsDataSetCreator from "./RoomsDataSetCreator";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -52,14 +53,14 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     private notValidID = (id: string, kind: InsightDatasetKind) => {
-        if (kind !== InsightDatasetKind.Courses) {
-            return true;
-        } else {
+        if (kind === InsightDatasetKind.Courses || kind === InsightDatasetKind.Rooms) {
             if (id in this.dict) {
                 return true;
             } else {
                 return this.notValidIDRemove(id);
             }
+        } else {
+            return true;
         }
     }
 
@@ -67,57 +68,6 @@ export default class InsightFacade implements IInsightFacade {
         const stringData = JSON.stringify(this.dict);
         const writeDir = path.join(this.cacheDir, "./disc.json");
         fs.writeFileSync( writeDir, stringData);
-    }
-
-    private jsonContentParser = (kind: InsightDatasetKind, jsonContent: any,
-                                 allData: {changed: boolean; values: ObjectValues[]}) => {
-        let dtc = new DatasetTypeController();
-        const keys = dtc.getCourseDatasetAllKeys();
-        if ("result" in jsonContent) {
-            if (!(jsonContent.result.length === 0)) {
-                jsonContent.result.forEach((values: any) => {
-                    let translatedValues: any = {};
-                    for (const key of keys) {
-                        if (key in values) {
-                            if (key === "Year") {
-                                if (values["Section"] === "overall") {
-                                    translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, "1900");
-                                } else {
-                                    translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, values[key]);
-                                }
-                            } else {
-                                translatedValues = dtc.datasetOrganizer(kind, key, translatedValues, values[key]);
-                            }
-                            if (!translatedValues) {
-                                translatedValues = {};
-                                break;
-                            }
-                        } else {
-                            translatedValues = {};
-                            break;
-                        }
-                    }
-                    if (Object.keys(translatedValues).length !== 0) {
-                        allData.changed = true;
-                        allData["values"].push(translatedValues);
-                    }
-                });
-            }
-        }
-        return allData;
-    }
-
-    private checkAllKeysCourses = (kind: InsightDatasetKind, results: any[]) => {
-        let allData: {changed: boolean; values: ObjectValues[]} = {
-            changed: false, values: []
-        };
-        results.forEach((r) => {
-            if (r.includes("result")) {
-                const jsonContent = JSON.parse(r);
-                allData = this.jsonContentParser(kind, jsonContent, allData);
-            }
-        });
-        return allData;
     }
 
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -128,13 +78,13 @@ export default class InsightFacade implements IInsightFacade {
                 let Zip = new JSZip();
                 return Zip.loadAsync(content, {base64: true})
                     .then((result) => {
-                        let promises: Array<Promise<any>> = [];
-                        result.folder("courses").forEach((relativePath, file) => {
-                            promises.push(file.async("string"));
-                        });
-                        return Promise.all(promises).then((results) =>  {
-                            return this.checkAllKeysCourses(kind, results);
-                        });
+                        let dataSetCreator: IDataSetCreator;
+                        if (kind  === InsightDatasetKind.Courses) {
+                            dataSetCreator = new CoursesDataSetCreator();
+                        } else {
+                            dataSetCreator = new RoomsDataSetCreator();
+                        }
+                        return dataSetCreator.addDataset(result);
                     }).then((data) => {
                         if (data.changed) {
                             this.dict[id] = {
@@ -146,8 +96,8 @@ export default class InsightFacade implements IInsightFacade {
                         } else {
                             return reject(new InsightError());
                         }
-                    }).catch(() => {
-                        return reject(new InsightError(1234));
+                    }).catch((e) => {
+                        return reject(new InsightError(e));
                 });
             }
         });

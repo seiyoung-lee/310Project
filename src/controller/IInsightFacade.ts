@@ -15,18 +15,6 @@ export interface InsightDataset {
     numRows: number;
 }
 
-export interface ObjectValues {
-    id: string;
-    dept: string;
-    avg: number;
-    instructor: string;
-    title: string;
-    pass: number;
-    fail: number;
-    audit: number;
-    uuid: string;
-    year: number;
-}
 
 export interface QueryValues {
     id: string;

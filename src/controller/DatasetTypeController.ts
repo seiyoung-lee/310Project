@@ -1,4 +1,6 @@
 import { InsightError, QueryValues, ResultTooLargeError, InsightDatasetKind } from "./IInsightFacade";
+import Geolocation from "./Geolocation";
+import Log from "../Util";
 
 export default class DatasetTypeController {
     // except for those specified, all functions can be used for both rooms and courses
@@ -6,13 +8,11 @@ export default class DatasetTypeController {
     private courseKeysNum: string[];
     private courseDatasetAllKeys: string[];
     private courseQueryAllKeys: string[];
-    private courseAllowedKeys: string[];
 
     private roomKeysStr: string[];
     private roomKeysNum: string[];
     private roomDatasetAllKeys: string[];
     private roomQueryAllKeys: string[];
-    private roomAllowedKeys: string[];
 
 
     constructor() {
@@ -22,23 +22,23 @@ export default class DatasetTypeController {
 
     public setCourseKeys(): void {
         this.courseDatasetAllKeys = ["Course", "Avg", "Professor", "Title", "Pass", "Fail",
-                                     "Audit", "id", "Year", "Subject"];
+            "Audit", "id", "Year", "Subject"];
         this.courseQueryAllKeys = ["fail", "pass", "avg", "year", "audit",
-                                   "course", "uuid", "instructor", "title", "id", "dept"];
+            "course", "uuid", "instructor", "title", "id", "dept"];
         this.courseKeysStr = ["course", "uuid", "instructor", "title", "id", "dept"];
         this.courseKeysNum = ["fail", "pass", "avg", "year", "audit"];
-        this.courseAllowedKeys = ["dept", "id", "instructor", "title", "uuid"];
     }
 
     public setRoomKeys(): void {
         // wrong, use it for translating
+        // seats<>capacity I think the only difference from the website
+        // also, fullname, shortname, name (rooms_shortname+"_"+rooms_number.), should be parsed in html
         this.roomDatasetAllKeys = ["fullname", "shortname", "number", "name", "address", "type",
-                            "furniture", "href", "lat", "lon", "seats"];
+            "furniture", "href", "lat", "lon", "seats"];
         this.roomQueryAllKeys = ["fullname", "shortname", "number", "name", "address", "type",
-                            "furniture", "href", "lat", "lon", "seats"];
+            "furniture", "href", "lat", "lon", "seats"];
         this.roomKeysStr = ["fullname", "shortname", "number", "name", "address", "type", "furniture", "href"];
         this.roomKeysNum = ["lat", "lon", "seats"];
-        this.roomAllowedKeys = ["dept", "id", "instructor", "title", "uuid"];
     }
 
     public getCourseDatasetAllKeys(): string[] {
@@ -57,10 +57,6 @@ export default class DatasetTypeController {
         return this.courseKeysNum;
     }
 
-    public getCourseAllowedKeys(): string[] {
-        return this.courseAllowedKeys;
-    }
-
     public getRoomDatasetAllKeys(): string[] {
         return this.roomDatasetAllKeys;
     }
@@ -75,10 +71,6 @@ export default class DatasetTypeController {
 
     public getRoomKeysNum(): string[] {
         return this.roomKeysNum;
-    }
-
-    public getRoomAllowedKeys(): string[] {
-        return this.roomAllowedKeys;
     }
 
 

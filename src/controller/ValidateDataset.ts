@@ -7,23 +7,32 @@ export default class ValidateDataset {
     private allKeys: string[];
     private keyNumbers: string[];
     private keyStrings: string[];
+    private kind: string;
     constructor() {
         this.globalID = "";
-        // this.allKeys = ["fail", "pass", "avg", "year", "audit",
-        //                  "course", "uuid", "instructor", "title", "id", "dept"];
     }
 
-    private setKeys(id: string) {
+    private setKeys(id: string, dict: any) {
         let dtc = new DatasetTypeController();
-        if (id === "courses") {
+        if (dict[id] && dict[id]["type"] === "courses") {
+            this.kind = "courses";
             this.allKeys = dtc.getCourseQueryAllKeys();
             this.keyNumbers = dtc.getCourseKeysNum();
             this.keyStrings = dtc.getCourseKeysStr();
-        } else if (id === "rooms") {
+        } else if (dict[id] && dict[id]["type"] === "rooms") {
+            this.kind = "rooms";
             this.allKeys = dtc.getRoomQueryAllKeys();
             this.keyNumbers = dtc.getRoomKeysNum();
             this.keyStrings = dtc.getRoomKeysStr();
+        } else {
+            this.allKeys = [];
+            this.keyNumbers = [];
+            this.keyStrings = [];
         }
+    }
+
+    public getKind() {
+        return this.kind;
     }
 
     public checkWhere(query: any, dict: any): boolean {
@@ -33,8 +42,6 @@ export default class ValidateDataset {
         if (Array.isArray(query)) {
             return false;
         }
-        // let keyNumbers: string[] = ["fail", "pass", "avg", "year", "audit"];
-        // let keyStrings: string[] = ["course", "uuid", "instructor", "title", "id", "dept"];
         let moreThanOne = false;
         let wentIn = false;
         for (let key in query) {
@@ -47,7 +54,7 @@ export default class ValidateDataset {
                 let cleanKey: string[] = key.split("_");
                 if (this.globalID === "") {
                     this.globalID = cleanKey[0];
-                    this.setKeys(dict[cleanKey[0]].type);
+                    this.setKeys(dict[cleanKey[0]].type, dict);
                 } else {
                     if (cleanKey[0] !== this.globalID) {
                         return false;
@@ -146,7 +153,7 @@ export default class ValidateDataset {
                 let cleanKey: string[] = key.split("_");
                 if (this.globalID === "") {
                     this.globalID = cleanKey[0];
-                    this.setKeys(dict[cleanKey[0]].type);
+                    this.setKeys(dict[cleanKey[0]].type, dict);
                 } else {
                     if (cleanKey[0] !== this.globalID) {
                         ret = false;
@@ -258,7 +265,6 @@ export default class ValidateDataset {
                 }
             }
         }
-        // options
         return this.checkQueryOptions(inputQuery, dict);
     }
 
