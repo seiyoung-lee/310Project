@@ -17,7 +17,6 @@ export default class Lib {
     }
 
     private static sortGivenSections(orderKeys: string[], sections: any, dir: string): any[] {
-        Log.trace(orderKeys);
         return sections.sort(((a: any, b: any) => {
             if (dir === "DOWN") {
                 for (let orderKey of orderKeys) {

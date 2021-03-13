@@ -24,7 +24,6 @@ export default class Geolocation {
                 // check for response status
                 const {statusCode} = res;
                 if (!/2[0-9][0-9]/.test(statusCode.toString())) {
-                    Log.trace(statusCode);
                     return reject(new Error("response status not 2xx"));
                 }
                 res.setEncoding("utf8");

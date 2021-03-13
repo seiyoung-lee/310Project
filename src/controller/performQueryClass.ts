@@ -39,7 +39,6 @@ export default class PerformQueryClass {
                     }
                 }
             });
-            Log.trace(id);
             return { datasetID: id, columns: keys };
         }
     }
@@ -173,7 +172,6 @@ export default class PerformQueryClass {
     private numberQueryValid(query: any, id: string) {
         const keys = Object.keys(query);
         const val = keys[0].split("_");
-        Log.trace(val);
         if (keys.length !== 1 || val[0] !== id || !this.keyNumbers.includes(val[1])
             || typeof (query[keys[0]]) !== "number" || query[keys[0]] === null) {
             throw new InsightError("NUMBER QUERY VALID");

@@ -69,7 +69,6 @@ export default class RoomsDataSetCreator implements IDataSetCreator {
             }
             return Promise.all(promiseArray).then((allRooms: any[]) => {
                 dataSet = dataSet.concat.apply([], allRooms);
-                Log.trace(dataSet);
                 return resolve({changed: true, values: dataSet});
             }).catch((e) => {
                 return reject(new InsightError());
