@@ -1,10 +1,38 @@
+import Log from "../Util";
 import {InsightError} from "./IInsightFacade";
+import DatasetTypeController from "./DatasetTypeController";
+import Lib from "./Lib";
 export default class ValidateDataset {
     private globalID: string;
-    private readonly allKeys: string[];
+    private allKeys: string[];
+    private keyNumbers: string[];
+    private keyStrings: string[];
+    private kind: string;
     constructor() {
         this.globalID = "";
-        this.allKeys = ["fail", "pass", "avg", "year", "audit", "course", "uuid", "instructor", "title", "id", "dept"];
+    }
+
+    private setKeys(id: string, dict: any) {
+        let dtc = new DatasetTypeController();
+        if (dict[id] && dict[id]["type"] === "courses") {
+            this.kind = "courses";
+            this.allKeys = dtc.getCourseQueryAllKeys();
+            this.keyNumbers = dtc.getCourseKeysNum();
+            this.keyStrings = dtc.getCourseKeysStr();
+        } else if (dict[id] && dict[id]["type"] === "rooms") {
+            this.kind = "rooms";
+            this.allKeys = dtc.getRoomQueryAllKeys();
+            this.keyNumbers = dtc.getRoomKeysNum();
+            this.keyStrings = dtc.getRoomKeysStr();
+        } else {
+            this.allKeys = [];
+            this.keyNumbers = [];
+            this.keyStrings = [];
+        }
+    }
+
+    public getKind() {
+        return this.kind;
     }
 
     public checkWhere(query: any, dict: any): boolean {
@@ -14,8 +42,6 @@ export default class ValidateDataset {
         if (Array.isArray(query)) {
             return false;
         }
-        let keyNumbers: string[] = ["fail", "pass", "avg", "year", "audit"];
-        let keyStrings: string[] = ["course", "uuid", "instructor", "title", "id", "dept"];
         let moreThanOne = false;
         let wentIn = false;
         for (let key in query) {
@@ -28,6 +54,7 @@ export default class ValidateDataset {
                 let cleanKey: string[] = key.split("_");
                 if (this.globalID === "") {
                     this.globalID = cleanKey[0];
+                    this.setKeys(dict[cleanKey[0]].type, dict);
                 } else {
                     if (cleanKey[0] !== this.globalID) {
                         return false;
@@ -39,10 +66,10 @@ export default class ValidateDataset {
                 if (!(this.allKeys.includes(cleanKey[1]))) {
                     return false;
                 }
-                if (cleanKey[1] in keyNumbers && typeof query[key] !== "number") {
+                if (cleanKey[1] in this.keyNumbers && typeof query[key] !== "number") {
                     return false;
                 }
-                if (cleanKey[1] in keyStrings && typeof query[key] !== "string") {
+                if (cleanKey[1] in this.keyStrings && typeof query[key] !== "string") {
                     return false;
                 }
             } catch (e) {
@@ -90,9 +117,12 @@ export default class ValidateDataset {
         return true;
     }
 
-    public checkOrder(query: any, columns: string[], orderKeys: string): string {
+    public checkOrder(query: any, columns: string[], orderKeys: string, dict: any): string {
         if (typeof query !== "string") {
-            return orderKeys;
+            if (Lib.checkObjectOrder(query, columns, orderKeys, this.globalID, this.allKeys)) {
+                return "valid object";
+            }
+            return "";
         }
         if (!columns.includes(query)) {
             return orderKeys;
@@ -102,12 +132,8 @@ export default class ValidateDataset {
             if (cleanKey.length !== 2) {
                 return orderKeys;
             }
-            if (this.globalID === "") {
-                this.globalID = cleanKey[0];
-            } else {
-                if (cleanKey[0] !== this.globalID) {
-                    return orderKeys;
-                }
+            if (cleanKey[0] !== this.globalID) {
+                return orderKeys;
             }
             if (cleanKey.length !== 2 || !(this.allKeys.includes(cleanKey[1]))) {
                 return orderKeys;
@@ -127,6 +153,7 @@ export default class ValidateDataset {
                 let cleanKey: string[] = key.split("_");
                 if (this.globalID === "") {
                     this.globalID = cleanKey[0];
+                    this.setKeys(dict[cleanKey[0]].type, dict);
                 } else {
                     if (cleanKey[0] !== this.globalID) {
                         ret = false;
@@ -238,7 +265,6 @@ export default class ValidateDataset {
                 }
             }
         }
-        // options
         return this.checkQueryOptions(inputQuery, dict);
     }
 
@@ -252,17 +278,18 @@ export default class ValidateDataset {
             }
         }
         let orderKeys: string = "";
-        if (!(Array.isArray(inputQuery["OPTIONS"]["COLUMNS"]))) {
+        const columns = inputQuery["OPTIONS"]["COLUMNS"];
+        if (!(Array.isArray(columns))) {
             return false;
         }
         if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) {
             return false;
         }
-        if (!(this.checkColumns(inputQuery["OPTIONS"]["COLUMNS"], orderKeys, dict))) {
+        if (!(this.checkColumns(columns, orderKeys, dict))) {
             return false;
         }
         if ("ORDER" in inputQuery["OPTIONS"]) {
-            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], inputQuery["OPTIONS"]["COLUMNS"], orderKeys);
+            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], columns, orderKeys, dict);
             if (orderKeys.length === 0) {
                 return false;
             }
