@@ -1,0 +1,27 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_type",
+                "count"
+            ]
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_type"
+            ],
+            "APPLY": [
+                {
+                    "count": {
+                        "COUNT": "rooms_type"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"rooms_type":"Case Style","count":1},{"rooms_type":"Open Design General Purpose","count":1},{"rooms_type":"Small Group","count":1},{"rooms_type":"Tiered Large Group","count":1},{"rooms_type":"","count":1},{"rooms_type":"TBD","count":1},{"rooms_type":"Active Learning","count":1},{"rooms_type":"Studio Lab","count":1}]
+
+}

@@ -1,0 +1,26 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_lon",
+                "min"
+            ]
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_lon"
+            ],
+            "APPLY": [
+                {
+                    "min": {
+                        "MAX": "rooms_lat"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"rooms_lon":-123.25318,"min":49.2699},{"rooms_lon":-123.25741,"min":49.26958},{"rooms_lon":-123.25099,"min":49.26372},{"rooms_lon":-123.25655,"min":49.2666},{"rooms_lon":-123.25249,"min":49.26479},{"rooms_lon":-123.25237,"min":49.26862},{"rooms_lon":-123.25468,"min":49.26826},{"rooms_lon":-123.25314,"min":49.26207},{"rooms_lon":-123.24718,"min":49.26228},{"rooms_lon":-123.25308,"min":49.2659},{"rooms_lon":-123.24894,"min":49.2683},{"rooms_lon":-123.25198,"min":49.26228},{"rooms_lon":-123.25224,"min":49.26274},{"rooms_lon":-123.24959,"min":49.26414},{"rooms_lon":-123.24886,"min":49.26044},{"rooms_lon":-123.25179,"min":49.26176},{"rooms_lon":-123.25583,"min":49.26767},{"rooms_lon":-123.24608,"min":49.26541},{"rooms_lon":-123.25623,"min":49.26605},{"rooms_lon":-123.25165,"min":49.2661},{"rooms_lon":-123.25374,"min":49.26627},{"rooms_lon":-123.25364,"min":49.26486},{"rooms_lon":-123.24807,"min":49.26125},{"rooms_lon":-123.25042,"min":49.27106},{"rooms_lon":-123.2521,"min":49.26766},{"rooms_lon":-123.25505,"min":49.2643},{"rooms_lon":-123.25533,"min":49.26545},{"rooms_lon":-123.24494,"min":49.26236},{"rooms_lon":-123.24935,"min":49.26176},{"rooms_lon":-123.25027,"min":49.26114},{"rooms_lon":-123.255534,"min":49.266463},{"rooms_lon":-123.254816,"min":49.266089},{"rooms_lon":-123.2531,"min":49.26398},{"rooms_lon":-123.24944,"min":49.26048},{"rooms_lon":-123.24342,"min":49.26229},{"rooms_lon":-123.2559,"min":49.264},{"rooms_lon":-123.24467,"min":49.26047},{"rooms_lon":-123.24842,"min":49.2642},{"rooms_lon":-123.25692,"min":49.26867},{"rooms_lon":-123.2466,"min":49.2663},{"rooms_lon":-123.24937,"min":49.26517},{"rooms_lon":-123.25431,"min":49.26293},{"rooms_lon":-123.24673,"min":49.26478}]
+}

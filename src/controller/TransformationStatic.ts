@@ -3,17 +3,19 @@ import DatasetTypeController from "./DatasetTypeController";
 import Log from "../Util";
 
 export default class TransformationStatic {
-    private static getApplyKeys(query: any[]): string[] {
+    private static getApplyKeys(query: any[]): string[] | boolean {
         let ret: string [] = [];
         for (let apply of query) {
             if (typeof apply !== "object" || apply == null) {
-                return [];
+                return false;
             }
             const keys = Object.keys(apply);
             if (keys.length !== 1) {
-                return [];
-            } else {
+                return false;
+            } else if (keys[0].length !== 0) {
                 ret.push(keys[0]);
+            } else {
+                return false;
             }
         }
         return ret;
@@ -23,6 +25,18 @@ export default class TransformationStatic {
         if (group.length === 0) {
             return false;
         }
+        for (let key of group) {
+            if (typeof key !== "string") {
+                return false;
+            }
+            if (!columns.includes(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static checkApplyArray(group: any[], columns: string[]): boolean {
         for (let key of group) {
             if (typeof key !== "string") {
                 return false;
@@ -70,10 +84,14 @@ export default class TransformationStatic {
         return true;
     }
 
-    private static checkColumns(columns: string[], id: string, type: string, apply: string[]): boolean  {
+    private static checkColumns(columns: string[], id: string, type: string, apply: string[],
+                                groups: string[]): boolean  {
         let dtc = new DatasetTypeController();
         let allKey = [];
         let ret = id;
+        if (columns.length !== apply.length + groups.length) {
+            return false;
+        }
         if (type === InsightDatasetKind.Courses) {
             allKey = dtc.getCourseQueryAllKeys();
         } else if (type === InsightDatasetKind.Rooms) {
@@ -125,11 +143,18 @@ export default class TransformationStatic {
                 id = transformation["GROUP"][0].split("_")[0];
             }
             const type: InsightDatasetKind = dict[id].type;
-            const apply: string[] = this.getApplyKeys(transformation["APPLY"]);
-            if (apply.length <= 0 || !this.checkGroups(apply, query["OPTIONS"]["COLUMNS"])) {
+            const apply: string[] | boolean = this.getApplyKeys(transformation["APPLY"]);
+            if (!apply) {
                 return false;
             }
-            return this.checkColumns(query["OPTIONS"]["COLUMNS"], id, type, apply) ?
+            let applyArray: string[] = [];
+            if (typeof apply === "object") {
+                applyArray = apply;
+            }
+            if (!this.checkApplyArray(applyArray, query["OPTIONS"]["COLUMNS"])) {
+                return false;
+            }
+            return this.checkColumns(query["OPTIONS"]["COLUMNS"], id, type, applyArray, transformation["GROUP"]) ?
                 this.checkApply(transformation["APPLY"], type, id) : false;
         } catch (e) {
             return false;

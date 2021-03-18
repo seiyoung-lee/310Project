@@ -7,13 +7,13 @@ import {
     NotFoundError,
 } from "./IInsightFacade";
 import PerformQueryClass from "./performQueryClass";
-import DatasetTypeController from "./DatasetTypeController";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as JSZip from "jszip";
 import {IDataSetCreator} from "./IDataSetCreator";
 import CoursesDataSetCreator from "./CoursesDataSetCreator";
 import RoomsDataSetCreator from "./RoomsDataSetCreator";
+
 
 /**
  * This is the main programmatic entry point for the project.

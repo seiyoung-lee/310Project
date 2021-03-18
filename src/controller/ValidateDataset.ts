@@ -2,6 +2,7 @@ import {InsightError} from "./IInsightFacade";
 import DatasetTypeController from "./DatasetTypeController";
 import Lib from "./Lib";
 import TransformationStatic from "./TransformationStatic";
+
 export default class ValidateDataset {
     private globalID: string;
     private allKeys: string[];
@@ -36,10 +37,7 @@ export default class ValidateDataset {
     }
 
     public checkWhere(query: any, dict: any): boolean {
-        if (typeof query !== "object" || query === null) {
-            return false;
-        }
-        if (Array.isArray(query)) {
+        if (typeof query !== "object" || query === null || Array.isArray(query)) {
             return false;
         }
         let moreThanOne = false;
