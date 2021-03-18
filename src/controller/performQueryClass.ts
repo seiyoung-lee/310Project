@@ -1,7 +1,7 @@
 import {InsightDatasetKind, InsightError, QueryValues, ResultTooLargeError} from "./IInsightFacade";
-import PerformQueryHelper from "./PerformQueryHelper";
 import Lib from "./Lib";
 import Transformations from "./Transformations";
+import PerformQueryHelper from "./PerformQueryHelper";
 
 export default class PerformQueryClass {
     private readonly dict: any;

@@ -1,0 +1,27 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_lon",
+                "min"
+            ]
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_lon"
+            ],
+            "APPLY": [
+                {
+                    "min": {
+                        "MAX": "rooms_lat",
+                        "MIN": "rooms_lat"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": false,
+    "result": "insight"
+}

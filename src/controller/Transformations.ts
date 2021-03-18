@@ -1,6 +1,4 @@
 import Decimal from "decimal.js";
-import {InsightDatasetKind} from "./IInsightFacade";
-import DatasetTypeController from "./DatasetTypeController";
 
 export default class Transformations {
     private readonly sections: any[];
