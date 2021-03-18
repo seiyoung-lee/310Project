@@ -46,9 +46,11 @@ export default class Lib {
         orderKeys: string,
         globalID: string,
         allKeys: string[]): boolean {
+        Log.trace("check order");
         if (typeof query !== "object" || query === null || typeof query === "undefined") {
             return false;
         }
+        Log.trace("check order");
         const queryKeys = Object.keys(query);
         if (queryKeys.length === 2 && queryKeys.includes("dir") && queryKeys.includes("keys")) {
             if (query["dir"] !== "UP" && query["dir"] !== "DOWN") {
@@ -60,6 +62,7 @@ export default class Lib {
             if (query["keys"].length <= 0) {
                 return false;
             }
+            Log.trace(query["keys"]);
             for (let key of query["keys"]) {
                 if (!columns.includes(key)) {
                     return false;
@@ -67,17 +70,8 @@ export default class Lib {
                 if (typeof key !== "string") {
                     return false;
                 }
-                let cleanKey = key.split("_");
-                if (cleanKey.length !== 2) {
-                    return false;
-                }
-                if (cleanKey[0] !== globalID) {
-                    return false;
-                }
-                if (cleanKey.length !== 2 || !(allKeys.includes(cleanKey[1]))) {
-                    return false;
-                }
             }
+            Log.trace("check order");
             return true;
         } else {
             return false;

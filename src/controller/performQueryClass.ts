@@ -1,9 +1,7 @@
-import {InsightDatasetKind,
-    InsightError, QueryValues, ResultTooLargeError} from "./IInsightFacade";
-import ValidateDataset from "./ValidateDataset";
+import {InsightDatasetKind, InsightError, QueryValues, ResultTooLargeError} from "./IInsightFacade";
 import PerformQueryHelper from "./PerformQueryHelper";
 import Lib from "./Lib";
-import Log from "../Util";
+import Transformations from "./Transformations";
 
 export default class PerformQueryClass {
     private readonly dict: any;
@@ -21,21 +19,22 @@ export default class PerformQueryClass {
             let id: string = "";
             columns.forEach((column: string) => {
                 if (!(column.includes("_"))) {
-                    throw new InsightError("column dataset");
-                }
-                const columnArray = column.split("_");
-                if (keys.length === 0) {
-                    id = columnArray[0];
-                    if (id in this.dict) {
-                        keys.push(columnArray[1]);
-                    } else {
-                        throw new InsightError("column dataset");
-                    }
+                    keys.push(column);
                 } else {
-                    if (id === columnArray[0]) {
-                        keys.push(columnArray[1]);
+                    const columnArray = column.split("_");
+                    if (keys.length === 0) {
+                        id = columnArray[0];
+                        if (id in this.dict) {
+                            keys.push(columnArray[1]);
+                        } else {
+                            throw new InsightError("column dataset");
+                        }
                     } else {
-                        throw new InsightError("column dataset");
+                        if (id === columnArray[0]) {
+                            keys.push(columnArray[1]);
+                        } else {
+                            throw new InsightError("column dataset");
+                        }
                     }
                 }
             });
@@ -267,18 +266,25 @@ export default class PerformQueryClass {
                     columns: columnsForSections["columns"], id: columnsForSections["datasetID"]
                 };
                 const sections = this.dict[columnsForSections["datasetID"]].sections;
-                const theQuery = this.getQuery(myQuery, false, true, sections);
-                if (theQuery.length >= 5000) {
-                    return reject(new ResultTooLargeError());
+                let theQuery = this.getQuery(myQuery, false, true, sections);
+                let sectionsRightKeys =  [];
+                if (hasOrder[1]) {
+                    sectionsRightKeys = new Transformations(theQuery, query["TRANSFORMATIONS"],
+                        query["OPTIONS"]["COLUMNS"]).applyTransformation();
+                    if (sectionsRightKeys.length >= 5000) {
+                        return reject(new ResultTooLargeError());
+                    }
+                } else {
+                    if (theQuery.length >= 5000) {
+                        return reject(new ResultTooLargeError());
+                    }
+                    sectionsRightKeys = this.getRightKeys(myQuery, theQuery);
                 }
-                const sectionsRightKeys = this.getRightKeys(myQuery, theQuery);
-                if (hasOrder) {
+                if (hasOrder[0]) {
                     if (typeof query["OPTIONS"]["ORDER"] === "string") {
-                        const orderKey: string = query["OPTIONS"]["ORDER"];
-                        return resolve(Lib.sort(orderKey, sectionsRightKeys));
+                        return resolve(Lib.sort(query["OPTIONS"]["ORDER"], sectionsRightKeys));
                     } else if (typeof query["OPTIONS"]["ORDER"] === "object") {
-                        const orderKey: {dir: string; keys: string[]} = query["OPTIONS"]["ORDER"];
-                        return resolve(Lib.sortFirst(orderKey, sectionsRightKeys));
+                        return resolve(Lib.sortFirst(query["OPTIONS"]["ORDER"], sectionsRightKeys));
                     } else {
                         return reject(new InsightError());
                     }

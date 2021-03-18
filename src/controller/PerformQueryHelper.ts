@@ -31,7 +31,7 @@ export default class PerformQueryHelper {
         if (!valid) {
             throw new InsightError("not valid");
         } else {
-            return query["OPTIONS"].hasOwnProperty("ORDER");
+            return [query["OPTIONS"].hasOwnProperty("ORDER"), query.hasOwnProperty("TRANSFORMATIONS")];
         }
     }
 

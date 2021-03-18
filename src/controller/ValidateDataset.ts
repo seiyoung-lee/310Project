@@ -1,7 +1,7 @@
-import Log from "../Util";
 import {InsightError} from "./IInsightFacade";
 import DatasetTypeController from "./DatasetTypeController";
 import Lib from "./Lib";
+import TransformationStatic from "./TransformationStatic";
 export default class ValidateDataset {
     private globalID: string;
     private allKeys: string[];
@@ -76,10 +76,7 @@ export default class ValidateDataset {
                 throw new InsightError();
             }
         }
-        if (!wentIn) {
-            return false;
-        }
-        return true;
+        return wentIn;
     }
 
     public checkAndOr(query: any, dict: any): boolean {
@@ -133,7 +130,11 @@ export default class ValidateDataset {
                 return orderKeys;
             }
             if (cleanKey[0] !== this.globalID) {
-                return orderKeys;
+                if (this.globalID.length !== 0) {
+                    return orderKeys;
+                }
+                this.globalID = cleanKey[0];
+                this.setKeys(cleanKey[0], dict);
             }
             if (cleanKey.length !== 2 || !(this.allKeys.includes(cleanKey[1]))) {
                 return orderKeys;
@@ -219,7 +220,7 @@ export default class ValidateDataset {
 
     public checkQuery(inputQuery: any, dict: any): boolean {
         if (typeof inputQuery === "undefined" || typeof inputQuery !== "object" ||
-            inputQuery == null || Object.keys(inputQuery).length <= 1 || Object.keys(inputQuery).length > 2) {
+            inputQuery == null || Object.keys(inputQuery).length <= 1 || Object.keys(inputQuery).length > 3) {
             return false;
         }
         if (!inputQuery.hasOwnProperty("WHERE")) {
@@ -265,7 +266,7 @@ export default class ValidateDataset {
                 }
             }
         }
-        return this.checkQueryOptions(inputQuery, dict);
+        return this.checkQueryOptions(inputQuery, dict); // options
     }
 
     public checkQueryOptions(inputQuery: any, dict: any): boolean {
@@ -277,20 +278,19 @@ export default class ValidateDataset {
                 return false;
             }
         }
-        let orderKeys: string = "";
         const columns = inputQuery["OPTIONS"]["COLUMNS"];
-        if (!(Array.isArray(columns))) {
+        if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS") || !(Array.isArray(columns))) {
             return false;
-        }
-        if (!inputQuery["OPTIONS"].hasOwnProperty("COLUMNS")) {
-            return false;
-        }
-        if (!(this.checkColumns(columns, orderKeys, dict))) {
-            return false;
+        } else {
+            if (Object.keys(inputQuery).length === 3 && !TransformationStatic.checkTransformation(inputQuery, dict,
+                this.globalID)) {
+                return false;
+            } else if (Object.keys(inputQuery).length !== 3 && !(this.checkColumns(columns, "", dict))) {
+                return false;
+            }
         }
         if ("ORDER" in inputQuery["OPTIONS"]) {
-            orderKeys = this.checkOrder(inputQuery["OPTIONS"]["ORDER"], columns, orderKeys, dict);
-            if (orderKeys.length === 0) {
+            if (this.checkOrder(inputQuery["OPTIONS"]["ORDER"], columns, "", dict).length === 0) {
                 return false;
             }
         }

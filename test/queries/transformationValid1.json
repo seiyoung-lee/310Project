@@ -1,0 +1,32 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_lon",
+                "count",
+                "avg"
+            ]
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_lon"
+            ],
+            "APPLY": [
+                {
+                    "count": {
+                        "SUM": "rooms_lat"
+                    }
+                },
+                {
+                    "avg": {
+                        "AVG": "rooms_lon"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"rooms_lon":-123.25318,"count":246.35,"avg":-123.25},{"rooms_lon":-123.25741,"count":197.08,"avg":-123.26},{"rooms_lon":-123.25099,"count":49.26,"avg":-123.25},{"rooms_lon":-123.25655,"count":98.53,"avg":-123.26},{"rooms_lon":-123.25249,"count":197.06,"avg":-123.25},{"rooms_lon":-123.25237,"count":98.54,"avg":-123.25},{"rooms_lon":-123.25468,"count":3005.36,"avg":-123.25},{"rooms_lon":-123.25314,"count":49.26,"avg":-123.25},{"rooms_lon":-123.24718,"count":147.79,"avg":-123.25},{"rooms_lon":-123.25308,"count":295.6,"avg":-123.25},{"rooms_lon":-123.24894,"count":443.38,"avg":-123.25},{"rooms_lon":-123.25198,"count":49.26,"avg":-123.25},{"rooms_lon":-123.25224,"count":147.79,"avg":-123.25},{"rooms_lon":-123.24959,"count":295.58,"avg":-123.25},{"rooms_lon":-123.24886,"count":492.6,"avg":-123.25},{"rooms_lon":-123.25179,"count":147.79,"avg":-123.25},{"rooms_lon":-123.25583,"count":295.61,"avg":-123.26},{"rooms_lon":-123.24608,"count":49.27,"avg":-123.25},{"rooms_lon":-123.25623,"count":394.13,"avg":-123.26},{"rooms_lon":-123.25165,"count":197.06,"avg":-123.25},{"rooms_lon":-123.25374,"count":295.6,"avg":-123.25},{"rooms_lon":-123.25364,"count":1379.42,"avg":-123.25},{"rooms_lon":-123.24807,"count":246.31,"avg":-123.25},{"rooms_lon":-123.25042,"count":98.54,"avg":-123.25},{"rooms_lon":-123.2521,"count":886.82,"avg":-123.25},{"rooms_lon":-123.25505,"count":344.85,"avg":-123.26},{"rooms_lon":-123.25533,"count":197.06,"avg":-123.26},{"rooms_lon":-123.24494,"count":147.79,"avg":-123.24},{"rooms_lon":-123.24935,"count":295.57,"avg":-123.25},{"rooms_lon":-123.25027,"count":935.96,"avg":-123.25},{"rooms_lon":-123.255534,"count":394.13,"avg":-123.26},{"rooms_lon":-123.254816,"count":49.27,"avg":-123.25},{"rooms_lon":-123.2531,"count":1083.81,"avg":-123.25},{"rooms_lon":-123.24944,"count":1034.47,"avg":-123.25},{"rooms_lon":-123.24342,"count":541.89,"avg":-123.24},{"rooms_lon":-123.2559,"count":394.11,"avg":-123.26},{"rooms_lon":-123.24467,"count":147.78,"avg":-123.24},{"rooms_lon":-123.24842,"count":295.59,"avg":-123.25},{"rooms_lon":-123.25692,"count":197.07,"avg":-123.26},{"rooms_lon":-123.2466,"count":98.53,"avg":-123.25},{"rooms_lon":-123.24937,"count":98.53,"avg":-123.25},{"rooms_lon":-123.25431,"count":1083.78,"avg":-123.25},{"rooms_lon":-123.24673,"count":788.24,"avg":-123.25}]
+}

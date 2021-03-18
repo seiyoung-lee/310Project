@@ -1,4 +1,4 @@
-import {InsightError} from "./IInsightFacade";
+import {InsightError, LatLongError} from "./IInsightFacade";
 import * as JSZip from "jszip";
 import Lib from "./Lib";
 import Log from "../Util";
@@ -177,7 +177,7 @@ export default class IndexHTMRow {
                     }
                 }
                 const geoLocation = new Geolocation();
-                return geoLocation.getGeoLocation(this.address).then((latlon) => {
+                return geoLocation.getGeoLocation(this.address).then((latLon) => {
                     const file = currFolder.file(folders[folders.length - 1]);
                     return file.async("string").then(Lib.parseHTML).then((parsed) => {
                         const table = this.findIndexHTMTable(parsed);
@@ -185,7 +185,7 @@ export default class IndexHTMRow {
                             let ret: any[] = [];
                             for (let child of table.childNodes) {
                                 if (child.nodeName === "tr") {
-                                    ret.push(this.getRawValues(child, latlon));
+                                    ret.push(this.getRawValues(child, latLon));
                                 }
                             }
                             return resolve(ret);
@@ -193,6 +193,8 @@ export default class IndexHTMRow {
                             return resolve([]);
                         }
                     });
+                }).catch((e: LatLongError) => {
+                    return resolve([]);
                 }).catch((e) => {
                     return reject(new InsightError());
                 });

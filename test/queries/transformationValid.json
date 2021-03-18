@@ -1,0 +1,44 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {
+            "GT": {
+                "rooms_seats": 100
+            }
+        },
+        "OPTIONS": {
+            "COLUMNS": [
+                "rooms_shortname",
+                "maxSeats",
+                "rooms_lat",
+                "max"
+            ],
+            "ORDER": {
+                "dir": "DOWN",
+                "keys": [
+                    "maxSeats"
+                ]
+            }
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_shortname",
+                "rooms_lat"
+            ],
+            "APPLY": [
+                {
+                    "maxSeats": {
+                        "MAX": "rooms_seats"
+                    }
+                },
+                {
+                    "max": {
+                        "COUNT": "rooms_lat"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"rooms_shortname":"WOOD","maxSeats":503,"rooms_lat":49.26478,"max":1},{"rooms_shortname":"OSBO","maxSeats":442,"rooms_lat":49.26047,"max":1},{"rooms_shortname":"CIRS","maxSeats":426,"rooms_lat":49.26207,"max":1},{"rooms_shortname":"HEBB","maxSeats":375,"rooms_lat":49.2661,"max":1},{"rooms_shortname":"ESB","maxSeats":350,"rooms_lat":49.26274,"max":1},{"rooms_shortname":"LSC","maxSeats":350,"rooms_lat":49.26236,"max":1},{"rooms_shortname":"WESB","maxSeats":325,"rooms_lat":49.26517,"max":1},{"rooms_shortname":"SRC","maxSeats":299,"rooms_lat":49.2683,"max":1},{"rooms_shortname":"SCRF","maxSeats":280,"rooms_lat":49.26398,"max":1},{"rooms_shortname":"BUCH","maxSeats":275,"rooms_lat":49.26826,"max":1},{"rooms_shortname":"CHEM","maxSeats":265,"rooms_lat":49.2659,"max":1},{"rooms_shortname":"ANGU","maxSeats":260,"rooms_lat":49.26486,"max":1},{"rooms_shortname":"HENN","maxSeats":257,"rooms_lat":49.26627,"max":1},{"rooms_shortname":"FSC","maxSeats":250,"rooms_lat":49.26044,"max":1},{"rooms_shortname":"PHRM","maxSeats":236,"rooms_lat":49.26229,"max":1},{"rooms_shortname":"BIOL","maxSeats":228,"rooms_lat":49.26479,"max":1},{"rooms_shortname":"GEOG","maxSeats":225,"rooms_lat":49.26605,"max":1},{"rooms_shortname":"MATH","maxSeats":224,"rooms_lat":49.266463,"max":1},{"rooms_shortname":"LSK","maxSeats":205,"rooms_lat":49.26545,"max":1},{"rooms_shortname":"CHBE","maxSeats":200,"rooms_lat":49.26228,"max":1},{"rooms_shortname":"MCML","maxSeats":200,"rooms_lat":49.26114,"max":1},{"rooms_shortname":"SWNG","maxSeats":190,"rooms_lat":49.26293,"max":1},{"rooms_shortname":"FRDM","maxSeats":160,"rooms_lat":49.26541,"max":1},{"rooms_shortname":"DMP","maxSeats":160,"rooms_lat":49.26125,"max":1},{"rooms_shortname":"IBLC","maxSeats":154,"rooms_lat":49.26766,"max":1},{"rooms_shortname":"AERL","maxSeats":144,"rooms_lat":49.26372,"max":1},{"rooms_shortname":"MCLD","maxSeats":136,"rooms_lat":49.26176,"max":1},{"rooms_shortname":"MATX","maxSeats":106,"rooms_lat":49.266089,"max":1}]
+}

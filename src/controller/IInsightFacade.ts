@@ -36,6 +36,13 @@ export class NotFoundError extends Error {
     }
 }
 
+export class LatLongError extends Error {
+    constructor(...args: any[]) {
+        super(...args);
+        Error.captureStackTrace(this, NotFoundError);
+    }
+}
+
 export class ResultTooLargeError extends Error {
     constructor(...args: any[]) {
         super(...args);
