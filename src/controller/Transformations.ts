@@ -19,7 +19,7 @@ export default class Transformations {
         const ret: any = {};
         const groupSections = Object.keys(this.GroupSections);
         for (let groupSection of groupSections) {
-            let max = 0;
+            let max = Number.MIN_VALUE;
             for (let section of this.GroupSections[groupSection].sections) {
                 if (max < section[key]) {
                     max = section[key];
@@ -34,7 +34,7 @@ export default class Transformations {
         const ret: any = {};
         const groupSections = Object.keys(this.GroupSections);
         for (let groupSection of groupSections) {
-            let min = 0;
+            let min = Number.MAX_VALUE;
             for (let section of this.GroupSections[groupSection].sections) {
                 if (min > section[key]) {
                     min = section[key];
