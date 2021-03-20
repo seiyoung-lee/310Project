@@ -11,37 +11,6 @@ export default class PerformQueryClass {
         this.dict = dict;
     }
 
-    private getColumnsAndDataSet = (columns: string[]) => {
-        if (columns.length === 0) {
-            throw new InsightError("column dataset");
-        } else {
-            let keys: string[] = [];
-            let id: string = "";
-            columns.forEach((column: string) => {
-                if (!(column.includes("_"))) {
-                    keys.push(column);
-                } else {
-                    const columnArray = column.split("_");
-                    if (keys.length === 0) {
-                        id = columnArray[0];
-                        if (id in this.dict) {
-                            keys.push(columnArray[1]);
-                        } else {
-                            throw new InsightError("column dataset");
-                        }
-                    } else {
-                        if (id === columnArray[0]) {
-                            keys.push(columnArray[1]);
-                        } else {
-                            throw new InsightError("column dataset");
-                        }
-                    }
-                }
-            });
-            return { datasetID: id, columns: keys };
-        }
-    }
-
     private OrAndQuery(query: QueryValues, not: boolean, type: string, sections: any[]): any [] {
         const OrAndArray = query.query[type];
         if (OrAndArray.length === 0 || !Array.isArray(OrAndArray)) {
@@ -257,11 +226,12 @@ export default class PerformQueryClass {
     public performQuery(query: any): Promise<any[]> {
         return new Promise<any[]>((resolve, reject) => {
             try {
-                const pqh = new PerformQueryHelper();
+                const pqh = new PerformQueryHelper(this.dict);
                 const hasOrder = pqh.checkOuterQuery(query, this.dict);
                 this.keyNumbers = pqh.getKeyNums();
                 this.keyStrings = pqh.getKeyStrs();
-                const columnsForSections = this.getColumnsAndDataSet(query["OPTIONS"]["COLUMNS"]);
+                const columnsForSections = hasOrder[1] ?  pqh.getColumnsAndDataSet(query["TRANSFORMATIONS"]["GROUP"]) :
+                    pqh.getColumnsAndDataSet(query["OPTIONS"]["COLUMNS"]);
                 const myQuery: QueryValues = { query: query["WHERE"],
                     columns: columnsForSections["columns"], id: columnsForSections["datasetID"]
                 };

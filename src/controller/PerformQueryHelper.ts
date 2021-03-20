@@ -5,8 +5,10 @@ import Log from "../Util";
 export default class PerformQueryHelper {
     private kind: string;
     private dtc: DatasetTypeController;
-    constructor() {
+    private dict: any;
+    constructor(dict: any) {
         this.dtc = new DatasetTypeController();
+        this.dict = dict;
     }
 
     /*
@@ -32,6 +34,37 @@ export default class PerformQueryHelper {
             throw new InsightError("not valid");
         } else {
             return [query["OPTIONS"].hasOwnProperty("ORDER"), query.hasOwnProperty("TRANSFORMATIONS")];
+        }
+    }
+
+    public getColumnsAndDataSet = (columns: string[]) => {
+        if (columns.length === 0) {
+            throw new InsightError("column dataset");
+        } else {
+            let keys: string[] = [];
+            let id: string = "";
+            columns.forEach((column: string) => {
+                if (!(column.includes("_"))) {
+                    keys.push(column);
+                } else {
+                    const columnArray = column.split("_");
+                    if (keys.length === 0) {
+                        id = columnArray[0];
+                        if (id in this.dict) {
+                            keys.push(columnArray[1]);
+                        } else {
+                            throw new InsightError("column dataset");
+                        }
+                    } else {
+                        if (id === columnArray[0]) {
+                            keys.push(columnArray[1]);
+                        } else {
+                            throw new InsightError("column dataset");
+                        }
+                    }
+                }
+            });
+            return { datasetID: id, columns: keys };
         }
     }
 

@@ -1,0 +1,26 @@
+{
+    "title": "SELECT dept, avg WHERE avg > 97",
+    "query": {
+        "WHERE": {},
+        "OPTIONS": {
+            "COLUMNS": [
+                "min"
+            ]
+        },
+        "TRANSFORMATIONS": {
+            "GROUP": [
+                "rooms_href",
+                "rooms_fullname"
+            ],
+            "APPLY": [
+                {
+                    "min": {
+                        "COUNT": "rooms_lat"
+                    }
+                }
+            ]
+        }
+    },
+    "isQueryValid": true,
+    "result":[{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1},{"min":1}]
+}
