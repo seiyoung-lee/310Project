@@ -56,9 +56,6 @@ export default class TransformationStatic {
             if (typeof key !== "string") {
                 return false;
             }
-            if (!columns.includes(key)) {
-                return false;
-            }
         }
         return true;
     }
@@ -117,9 +114,7 @@ export default class TransformationStatic {
                 if (!apply.includes(column)) {
                     return false;
                 }
-            } else if (ret !== columnArray[0] || !allKey.includes(columnArray[1])) {
-                return false;
-            } else if (!groups.includes(column)) {
+            } else if (ret !== columnArray[0] || !allKey.includes(columnArray[1]) || !groups.includes(column)) {
                 return false;
             }
         }

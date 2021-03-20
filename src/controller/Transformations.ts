@@ -141,7 +141,9 @@ export default class Transformations {
                             }
                         }
                     } else {
-                        overallSection[allKeys] = this.GroupSections[groups][allKeys];
+                        if (this.columns.includes(allKeys)) {
+                            overallSection[allKeys] = this.GroupSections[groups][allKeys];
+                        }
                     }
                 }
                 ret.push(overallSection);
