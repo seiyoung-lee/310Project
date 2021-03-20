@@ -12,7 +12,7 @@ export default class TransformationStatic {
             const keys = Object.keys(apply);
             if (keys.length !== 1) {
                 return false;
-            } else if (keys[0].length !== 0) {
+            } else if (keys[0].length !== 0 && !ret.includes(keys[0])) {
                 ret.push(keys[0]);
             } else {
                 return false;
@@ -21,7 +21,7 @@ export default class TransformationStatic {
         return ret;
     }
 
-    private static checkGroups(group: any[], columns: string[]): boolean {
+    private static checkGroups(group: any[], dict: any): boolean {
         if (group.length === 0) {
             return false;
         }
@@ -29,7 +29,22 @@ export default class TransformationStatic {
             if (typeof key !== "string") {
                 return false;
             }
-            if (!columns.includes(key)) {
+            const keyFormat = key.split("_");
+            if (keyFormat.length !== 2) {
+                return false;
+            }
+            const type = dict[keyFormat[0]].type;
+            const theKey = keyFormat[1];
+            let dtc = new DatasetTypeController();
+            let allKey = [];
+            if (type === InsightDatasetKind.Courses) {
+                allKey = dtc.getCourseQueryAllKeys();
+            } else if (type === InsightDatasetKind.Rooms) {
+                allKey = dtc.getRoomQueryAllKeys();
+            } else {
+                return false;
+            }
+            if (!allKey.includes(theKey)) {
                 return false;
             }
         }
@@ -89,9 +104,6 @@ export default class TransformationStatic {
         let dtc = new DatasetTypeController();
         let allKey = [];
         let ret = id;
-        if (columns.length !== apply.length + groups.length) {
-            return false;
-        }
         if (type === InsightDatasetKind.Courses) {
             allKey = dtc.getCourseQueryAllKeys();
         } else if (type === InsightDatasetKind.Rooms) {
@@ -106,6 +118,8 @@ export default class TransformationStatic {
                     return false;
                 }
             } else if (ret !== columnArray[0] || !allKey.includes(columnArray[1])) {
+                return false;
+            } else if (!groups.includes(column)) {
                 return false;
             }
         }
@@ -136,7 +150,7 @@ export default class TransformationStatic {
                     }
                 }
             }
-            if (!this.checkGroups(transformation["GROUP"], query["OPTIONS"]["COLUMNS"])) {
+            if (!this.checkGroups(transformation["GROUP"], dict)) {
                 return false;
             }
             if (id === "") {
