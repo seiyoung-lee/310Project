@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import Log from "../Util";
 
 export default class Transformations {
     private readonly sections: any[];
@@ -116,7 +117,6 @@ export default class Transformations {
     private apply(): any[] {
         const trans: any[] = this.transform["APPLY"];
         let ret: any[] = [];
-        const group: string[] = this.transform["GROUP"];
         for (let tran of trans) {
             const keyOuter = Object.keys(tran);
             const key = Object.keys(tran[keyOuter[0]]);
@@ -134,9 +134,11 @@ export default class Transformations {
                 for (let allKeys in this.GroupSections[groups]) {
                     if (allKeys === "sections") {
                         const section = this.GroupSections[groups]["sections"][0];
-                        for (let element of group) {
-                            const rawKey = element.split("_")[1];
-                            overallSection[element] = section[rawKey];
+                        for (let element of this.columns) {
+                            const rawKey = element.split("_");
+                            if (rawKey.length === 2) {
+                                overallSection[element] = section[rawKey[1]];
+                            }
                         }
                     } else {
                         overallSection[allKeys] = this.GroupSections[groups][allKeys];
