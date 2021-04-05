@@ -73,7 +73,7 @@ export default class Server {
                 that.rest.get("/echo/:msg", Server.echo);
 
                 // NOTE: your endpoints should go here
-                that.rest.get("/dataset", Server.getDatasets);
+                that.rest.get("/datasets", Server.getDatasets);
                 that.rest.del("/dataset/:id", Server.deleteDataset);
                 that.rest.post("/query", Server.postDataset);
                 that.rest.put("/dataset/:id/:kind", Server.putDataset);
@@ -189,7 +189,8 @@ export default class Server {
     public static postDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::postDataset::" + path);
-        let query: any = req.getQuery;
+        let query: any = req.body;
+        Log.trace(query);
         Server.insight.performQuery(query)
         .then((response: any) => {
             let answer: any = {result: response};

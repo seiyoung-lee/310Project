@@ -144,6 +144,5 @@ CampusExplorer.buildQuery = () => {
         query["OPTIONS"] = optionsObject;
 
     }
-    console.log(query);
     return query;
 };

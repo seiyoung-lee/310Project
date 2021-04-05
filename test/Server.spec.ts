@@ -45,7 +45,7 @@ describe("Facade D3", function () {
     // Sample on how to format PUT requests
     it("PUT test for courses dataset", function () {
         try {
-            const ENDPOINT_URL = "/dataset/mush/courses";
+            const ENDPOINT_URL = "/dataset/courses/courses";
             const ZIP_FILE_DATA = fs.readFileSync("./test/data/courses.zip");
             return chai.request(SERVER_URL)
                 .put(ENDPOINT_URL)
