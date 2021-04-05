@@ -15,15 +15,16 @@ CampusExplorer.sendQuery = (query) => {
         console.log("yo")
         let json = JSON.stringify(query);
         request.send(json);
-        request.onreadystatechange = function() {
+        request.onload = function() {
             // Check if the request is compete and was successful
-            if(this.readyState === 4 && this.status === 200) {
-                const resp = JSON.parse(this.responseText);
-                console.log(resp);
-                return resolve(resp);
-            } else if (this.readyState === 4 && this.status === 400) {
-                return reject({error :"error"});
-            }
+            // if(this.readyState === 4 && this.status === 200) {
+            //     const resp = JSON.parse(this.responseText);
+            //     console.log(resp);
+            //     return resolve(resp);
+            // } else if (this.readyState === 4 && this.status === 400) {
+            //     return reject({error :"error"});
+            // }
+            resolve(JSON.parse(request.response));
         };
     });
 };
