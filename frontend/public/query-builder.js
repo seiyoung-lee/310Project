@@ -52,11 +52,14 @@ CampusExplorer.buildQuery = () => {
                     }
                     queryArray.push(soloQuery);
                 }
-                if (theConditions.length === 1) {
+                console.log("queryArray");
+                console.log(queryArray);
+                if (queryArray.length === 1) {
+                    console.log(NotOrAnd);
                     if (NotOrAnd === "none") {
                         const temp = {};
                         temp["NOT"] = queryArray[0];
-                        query["WHERE"] = temp["NOT"];
+                        query["WHERE"] = temp;
                     } else {
                         query["WHERE"] = queryArray[0];
                     }
@@ -104,8 +107,10 @@ CampusExplorer.buildQuery = () => {
                     orderObject["dir"] = "UP";
                 }
             }
-            orderObject["keys"] = orders;
-            optionsObject["ORDER"] = orderObject;
+            if (orders.length !== 0) {
+                orderObject["keys"] = orders;
+                optionsObject["ORDER"] = orderObject;
+            }
         }
         const transformationObject = {};
         for (let columns of element.getElementsByClassName("form-group groups")) {
@@ -137,6 +142,7 @@ CampusExplorer.buildQuery = () => {
                 optionsObject["COLUMNS"] = queryColumns;
             }
             transformationObject["APPLY"] = transformations;
+            console.log(transformations);
         }
         if (transformationObject["APPLY"].length > 0 || transformationObject["GROUP"].length > 0) {
             query["TRANSFORMATIONS"] = transformationObject;
