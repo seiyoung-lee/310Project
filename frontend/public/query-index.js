@@ -9,3 +9,14 @@
  */
 
 // TODO: implement!
+document.getElementById("submit-button").addEventListener("click", () => {
+    let query = CampusExplorer.buildQuery();
+    const httpRequest = CampusExplorer.sendQuery(query);
+    httpRequest
+        .then((response) => {
+            CampusExplorer.renderResult(response);
+        })
+        .catch((error) => {
+            CampusExplorer.renderResult(error);
+        });
+})
