@@ -24,13 +24,13 @@ describe("Facade D3", function () {
 
     after(function () {
         // TODO: stop server here once!
-        // const cacheDir = __dirname + "/../data";
-        // try {
-        //     fs.removeSync(cacheDir);
-        //     fs.mkdirSync(cacheDir);
-        // } catch (err) {
-        //     Log.error(err);
-        // }
+        const cacheDir = __dirname + "/../data";
+        try {
+            fs.removeSync(cacheDir);
+            fs.mkdirSync(cacheDir);
+        } catch (err) {
+            Log.error(err);
+        }
         server.stop();
     });
 
