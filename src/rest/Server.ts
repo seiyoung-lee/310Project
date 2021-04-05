@@ -144,96 +144,107 @@ export default class Server {
 
     // put, delete, post, get
     // get
-    public static getDatasets(req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> {
+    public static getDatasets(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::getDatasets::" + path);
-        return new Promise<any>((resolve, reject) => {
-            return Server.insight.listDatasets()
-                .then((response: any) => {
-                    let answer: any = {result: response};
-                    res.send(200, answer);
-                    return resolve(next());
-                })
-                .catch( (err: any) => {
-                    return reject(new Error(err));
-                });
-        });
+        Server.insight.listDatasets()
+            .then((response: any) => {
+                let answer: any = {result: response};
+                res.send(200, answer);
+                return next();
+            })
+            .catch((err: any) => {
+                let answer: any = {error: "insightFacade error"};
+                res.send(400, answer);
+                return next();
+            });
     }
 
     // delete
-    public static deleteDataset(req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> {
+    public static deleteDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::deleteDataset::" + path);
-        let id = req.url.split("/").pop();
-        return new Promise<any>((resolve, reject) => {
-            return Server.insight.removeDataset(id)
-                .then((response: any) => {
-                    let answer: any = {result: response};
-                    res.send(200, answer);
-                    return resolve(next());
-                })
-                .catch((err: any) => {
-                    if (err instanceof NotFoundError) {
-                        let answer: any = {error: "Dataset with ID '" + id + "' not found"};
-                        res.send(404, answer);
-                        return reject(next(new NotFoundError(err)));
-                    } else {
-                        let answer: any = {error: "insightFacade error"};
-                        res.send(400, answer);
-                        return reject(next(new InsightError(err)));
-                    }
-                });
-        });
+        let id = req.params.id;
+        Log.trace(id);
+        Server.insight.removeDataset(id)
+            .then((response: any) => {
+                let answer: any = {result: response};
+                res.send(200, answer);
+                return next();
+            })
+            .catch((err: any) => {
+                if (err instanceof NotFoundError) {
+                    let answer: any = {error: "Dataset with ID '" + id + "' not found"};
+                    res.send(404, answer);
+                    return next();
+                } else {
+                    let answer: any = {error: "insightFacade error"};
+                    res.send(400, answer);
+                    return next();
+                }
+            });
     }
 
     // post
-    public static postDataset(req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> {
+    public static postDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::postDataset::" + path);
         let query: any = req.getQuery;
-        return new Promise<any>((resolve, reject) => {
-            return Server.insight.performQuery(query)
-                .then((response: any) => {
-                    let answer: any = {result: response};
-                    res.send(200, answer);
-                    return resolve(next());
-                })
-                .catch((err: any) => {
-                    let answer: any = {error: "insightFacade error"};
-                    res.send(400, answer);
-                    return reject(next(new InsightError(err)));
-                });
+        Server.insight.performQuery(query)
+        .then((response: any) => {
+            let answer: any = {result: response};
+            res.send(200, answer);
+            return next();
+        })
+        .catch((err: any) => {
+            let answer: any = {error: "insightFacade error"};
+            res.send(400, answer);
+            return next();
         });
-
-
     }
 
 
     // put
-    public static putDataset(req: restify.Request, res: restify.Response, next: restify.Next): Promise<any> {
+    public static putDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::putDataset::" + path);
-        let parsedURL = req.url.split("/");
         let kind: InsightDatasetKind;
-        if (parsedURL.pop() === "courses") {
+        let paramKind: string = req.params.kind;
+        if (paramKind === "courses") {
             kind = InsightDatasetKind.Courses;
-        } else {
+        } else if (paramKind === "rooms") {
             kind = InsightDatasetKind.Rooms;
+        } else {
+            let answer: any = {error: "insightFacade error"};
+            res.send(400, answer);
+            return next();
         }
-        let content = new Buffer(req.body).toString("base64");
-        let id = parsedURL.pop();
-        return new Promise<any>((resolve, reject) => {
-            return Server.insight.addDataset(id, content, kind)
-                .then ((response: any) => {
+        try {
+            let content = "";
+            if (Buffer.isBuffer(req.body)) {
+                const buffer: Buffer = req.body;
+                content = buffer.toString("base64");
+            } else {
+                let answer: any = {error: "insightFacade error"};
+                res.send(400, answer);
+                return next();
+            }
+            let id = req.params.id;
+            Server.insight.addDataset(id, content, kind)
+                .then((response: any) => {
                     let answer: any = {result: response};
                     res.send(200, answer);
-                    return resolve(next());
+                    return next();
                 })
                 .catch((err: any) => {
                     let answer: any = {error: "insightFacade error"};
                     res.send(400, answer);
-                    return reject(next(new InsightError(err)));
+                    return next();
                 });
-        });
+        } catch (e) {
+            let answer: any = {error: "insightFacade error"};
+            res.send(400, answer);
+            return next();
+        }
     }
 }
