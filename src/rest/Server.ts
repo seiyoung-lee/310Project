@@ -189,7 +189,8 @@ export default class Server {
     public static postDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         let path = req.url;
         Log.trace("RoutHandler::postDataset::" + path);
-        let query: any = req.getQuery;
+        let query: any = req.body;
+        Log.trace(query);
         Server.insight.performQuery(query)
         .then((response: any) => {
             let answer: any = {result: response};
