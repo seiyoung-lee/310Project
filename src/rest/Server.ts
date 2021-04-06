@@ -165,7 +165,6 @@ export default class Server {
         let path = req.url;
         Log.trace("RoutHandler::deleteDataset::" + path);
         let id = req.params.id;
-        Log.trace(id);
         Server.insight.removeDataset(id)
             .then((response: any) => {
                 let answer: any = {result: response};
@@ -190,16 +189,15 @@ export default class Server {
         let path = req.url;
         Log.trace("RoutHandler::postDataset::" + path);
         let query: any = req.body;
-        Log.trace(query);
         Server.insight.performQuery(query)
         .then((response: any) => {
             let answer: any = {result: response};
-            res.send(200, answer);
+            res.json(200, answer);
             return next();
         })
         .catch((err: any) => {
             let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
+            res.json(400, answer);
             return next();
         });
     }
@@ -217,7 +215,7 @@ export default class Server {
             kind = InsightDatasetKind.Rooms;
         } else {
             let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
+            res.json(400, answer);
             return next();
         }
         try {
@@ -227,24 +225,24 @@ export default class Server {
                 content = buffer.toString("base64");
             } else {
                 let answer: any = {error: "insightFacade error"};
-                res.send(400, answer);
+                res.json(400, answer);
                 return next();
             }
             let id = req.params.id;
             Server.insight.addDataset(id, content, kind)
                 .then((response: any) => {
                     let answer: any = {result: response};
-                    res.send(200, answer);
+                    res.json(200, answer);
                     return next();
                 })
                 .catch((err: any) => {
                     let answer: any = {error: "insightFacade error"};
-                    res.send(400, answer);
+                    res.json(400, answer);
                     return next();
                 });
         } catch (e) {
             let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
+            res.json(400, answer);
             return next();
         }
     }
