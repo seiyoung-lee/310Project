@@ -150,12 +150,12 @@ export default class Server {
         Server.insight.listDatasets()
             .then((response: any) => {
                 let answer: any = {result: response};
-                res.send(200, answer);
+                res.json(200, answer);
                 return next();
             })
             .catch((err: any) => {
                 let answer: any = {error: "insightFacade error"};
-                res.send(400, answer);
+                res.json(400, answer);
                 return next();
             });
     }
@@ -168,17 +168,17 @@ export default class Server {
         Server.insight.removeDataset(id)
             .then((response: any) => {
                 let answer: any = {result: response};
-                res.send(200, answer);
+                res.json(200, answer);
                 return next();
             })
             .catch((err: any) => {
                 if (err instanceof NotFoundError) {
                     let answer: any = {error: "Dataset with ID '" + id + "' not found"};
-                    res.send(404, answer);
+                    res.json(404, answer);
                     return next();
                 } else {
                     let answer: any = {error: "insightFacade error"};
-                    res.send(400, answer);
+                    res.json(400, answer);
                     return next();
                 }
             });
@@ -221,8 +221,8 @@ export default class Server {
         try {
             let content = "";
             if (Buffer.isBuffer(req.body)) {
-                const buffer: Buffer = req.body;
-                content = buffer.toString("base64");
+                // const buffer: Buffer = req.body;
+                content = Buffer.from(req.body).toString("base64");
             } else {
                 let answer: any = {error: "insightFacade error"};
                 res.json(400, answer);
