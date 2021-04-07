@@ -214,15 +214,14 @@ export default class Server {
                     return next();
                 })
                 .catch((err: any) => {
-                    let answer: any = {error: err};
+                    let answer: any = {error: "insightFacade error"};
                     res.json(400, answer);
                     return next();
                 });
         } catch (e) {
-            let answer: any = {error: e};
+            let answer: any = {error: "insightFacade error"};
             res.json(400, answer);
             return next();
         }
-        return next();
     }
 }
