@@ -205,31 +205,10 @@ export default class Server {
 
     // put
     public static putDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
-        let path = req.url;
-        Log.trace("RoutHandler::putDataset::" + path);
-        let kind: InsightDatasetKind;
-        let paramKind: string = req.params.kind;
-        if (paramKind === "courses") {
-            kind = InsightDatasetKind.Courses;
-        } else if (paramKind === "rooms") {
-            kind = InsightDatasetKind.Rooms;
-        } else {
-            let answer: any = {error: "insightFacade error"};
-            res.json(400, answer);
-            return next();
-        }
         try {
-            let content = "";
-            if (Buffer.isBuffer(req.body)) {
-                // const buffer: Buffer = req.body;
-                content = Buffer.from(req.body).toString("base64");
-            } else {
-                let answer: any = {error: "insightFacade error"};
-                res.json(400, answer);
-                return next();
-            }
+            let content = Buffer.from(req.body).toString("base64");
             let id = req.params.id;
-            Server.insight.addDataset(id, content, kind)
+            Server.insight.addDataset(id, content, req.params.kind)
                 .then((response: any) => {
                     let answer: any = {result: response};
                     res.json(200, answer);
