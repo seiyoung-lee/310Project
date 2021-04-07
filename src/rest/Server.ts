@@ -207,22 +207,22 @@ export default class Server {
     public static putDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         try {
             let content = Buffer.from(req.body).toString("base64");
-            let id = req.params.id;
-            Server.insight.addDataset(id, content, req.params.kind)
+            Server.insight.addDataset(req.params.id, content, req.params.kind)
                 .then((response: any) => {
                     let answer: any = {result: response};
                     res.json(200, answer);
                     return next();
                 })
                 .catch((err: any) => {
-                    let answer: any = {error: "insightFacade error"};
+                    let answer: any = {error: err};
                     res.json(400, answer);
                     return next();
                 });
         } catch (e) {
-            let answer: any = {error: "insightFacade error"};
+            let answer: any = {error: e};
             res.json(400, answer);
             return next();
         }
+        return next();
     }
 }
