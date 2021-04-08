@@ -21,11 +21,12 @@ export default class Server {
 
     private port: number;
     private rest: restify.Server;
-    private static insight: InsightFacade = new InsightFacade();
+    private static insight: InsightFacade;
 
     constructor(port: number) {
         Log.info("Server::<init>( " + port + " )");
         this.port = port;
+        Server.insight = new InsightFacade();
     }
 
     /**

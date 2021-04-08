@@ -76,14 +76,14 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
     afterEach(function () {
         // This section resets the data directory (removing any cached data) and resets the InsightFacade instance
         // This runs after each test, which should make each test independent from the previous one
-        Log.test(`AfterTest: ${this.currentTest.title}`);
-        try {
-            fs.removeSync(cacheDir);
-            fs.mkdirSync(cacheDir);
-            insightFacade = new InsightFacade();
-        } catch (err) {
-            Log.error(err);
-        }
+        // Log.test(`AfterTest: ${this.currentTest.title}`);
+        // try {
+        //     fs.removeSync(cacheDir);
+        //     fs.mkdirSync(cacheDir);
+        //     insightFacade = new InsightFacade();
+        // } catch (err) {
+        //     Log.error(err);
+        // }
     });
     // it("Failed attempt to remove a dataset", () => {
     //     const id: string = "courses";
@@ -1031,6 +1031,26 @@ describe("InsightFacade Add/Remove/List Dataset", function () {
             id,
             datasets[id],
             InsightDatasetKind.Rooms,
+        );
+        return expect(dummy).to.eventually.deep.equal(expected);
+    });
+    it("Add valid room dataset", function () {
+        const id: string = "rooms";
+        const expected: string[] = [id];
+        const dummy: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Rooms,
+        );
+        return expect(dummy).to.eventually.deep.equal(expected);
+    });
+    it("Add valid course dataset", function () {
+        const id: string = "courses";
+        const expected: string[] = [id];
+        const dummy: Promise<string[]> = insightFacade.addDataset(
+            id,
+            datasets[id],
+            InsightDatasetKind.Courses,
         );
         return expect(dummy).to.eventually.deep.equal(expected);
     });
