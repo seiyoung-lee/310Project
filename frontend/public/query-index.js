@@ -18,12 +18,9 @@ document.getElementById("submit-button").addEventListener("click", () => {
         const httpRequest = CampusExplorer.sendQuery(query);
         httpRequest
             .then((response) => {
-                console.log(response);
                 CampusExplorer.renderResult(response);
             })
             .catch((error) => {
-                console.log("error");
-                console.log(error);
                 CampusExplorer.renderResult(error);
             });
     }

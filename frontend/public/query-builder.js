@@ -53,10 +53,7 @@ CampusExplorer.buildQuery = () => {
                         }
                         queryArray.push(soloQuery);
                     }
-                    console.log("queryArray");
-                    console.log(queryArray);
                     if (queryArray.length === 1) {
-                        console.log(NotOrAnd);
                         if (NotOrAnd === "none") {
                             const temp = {};
                             temp["NOT"] = queryArray[0];
@@ -150,10 +147,8 @@ CampusExplorer.buildQuery = () => {
             query["OPTIONS"] = optionsObject;
 
         }
-        console.log(query);
         return query;
     } catch (e) {
-        console.log(e);
         return false;
     }
 };
