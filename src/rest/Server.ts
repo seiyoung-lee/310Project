@@ -150,12 +150,12 @@ export default class Server {
         Server.insight.listDatasets()
             .then((response: any) => {
                 let answer: any = {result: response};
-                res.send(200, answer);
+                res.json(200, answer);
                 return next();
             })
             .catch((err: any) => {
                 let answer: any = {error: "insightFacade error"};
-                res.send(400, answer);
+                res.json(400, answer);
                 return next();
             });
     }
@@ -165,21 +165,20 @@ export default class Server {
         let path = req.url;
         Log.trace("RoutHandler::deleteDataset::" + path);
         let id = req.params.id;
-        Log.trace(id);
         Server.insight.removeDataset(id)
             .then((response: any) => {
                 let answer: any = {result: response};
-                res.send(200, answer);
+                res.json(200, answer);
                 return next();
             })
             .catch((err: any) => {
                 if (err instanceof NotFoundError) {
                     let answer: any = {error: "Dataset with ID '" + id + "' not found"};
-                    res.send(404, answer);
+                    res.json(404, answer);
                     return next();
                 } else {
                     let answer: any = {error: "insightFacade error"};
-                    res.send(400, answer);
+                    res.json(400, answer);
                     return next();
                 }
             });
@@ -190,16 +189,15 @@ export default class Server {
         let path = req.url;
         Log.trace("RoutHandler::postDataset::" + path);
         let query: any = req.body;
-        Log.trace(query);
         Server.insight.performQuery(query)
         .then((response: any) => {
             let answer: any = {result: response};
-            res.send(200, answer);
+            res.json(200, answer);
             return next();
         })
         .catch((err: any) => {
             let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
+            res.json(400, answer);
             return next();
         });
     }
@@ -207,44 +205,22 @@ export default class Server {
 
     // put
     public static putDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
-        let path = req.url;
-        Log.trace("RoutHandler::putDataset::" + path);
-        let kind: InsightDatasetKind;
-        let paramKind: string = req.params.kind;
-        if (paramKind === "courses") {
-            kind = InsightDatasetKind.Courses;
-        } else if (paramKind === "rooms") {
-            kind = InsightDatasetKind.Rooms;
-        } else {
-            let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
-            return next();
-        }
         try {
-            let content = "";
-            if (Buffer.isBuffer(req.body)) {
-                const buffer: Buffer = req.body;
-                content = buffer.toString("base64");
-            } else {
-                let answer: any = {error: "insightFacade error"};
-                res.send(400, answer);
-                return next();
-            }
-            let id = req.params.id;
-            Server.insight.addDataset(id, content, kind)
+            let content = Buffer.from(req.body).toString("base64");
+            Server.insight.addDataset(req.params.id, content, req.params.kind)
                 .then((response: any) => {
                     let answer: any = {result: response};
-                    res.send(200, answer);
+                    res.json(200, answer);
                     return next();
                 })
                 .catch((err: any) => {
                     let answer: any = {error: "insightFacade error"};
-                    res.send(400, answer);
+                    res.json(400, answer);
                     return next();
                 });
         } catch (e) {
             let answer: any = {error: "insightFacade error"};
-            res.send(400, answer);
+            res.json(400, answer);
             return next();
         }
     }
