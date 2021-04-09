@@ -40,7 +40,7 @@ CampusExplorer.buildQuery = () => {
                         const theTerm = theCondition.getElementsByClassName("control term")[0];
                         let writtenTerm = theTerm.getElementsByTagName('input')[0].value.trim();
                         const parsed = parseFloat(writtenTerm);
-                        if (!isNaN(parsed)) {
+                        if (!isNaN(parsed) && numKeys.includes(selectedValue)) {
                             writtenTerm = parsed;
                         }
                         let OperatorObject = {}
