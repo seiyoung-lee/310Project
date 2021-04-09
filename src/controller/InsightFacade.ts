@@ -55,14 +55,11 @@ export default class InsightFacade implements IInsightFacade {
     private notValidID = (id: string, kind: InsightDatasetKind) => {
         if (kind === InsightDatasetKind.Courses || kind === InsightDatasetKind.Rooms) {
             if (id in this.dict) {
-                Log.trace(3);
                 return true;
             } else {
-                Log.trace(2);
                 return this.notValidIDRemove(id);
             }
         } else {
-            Log.trace(1);
             return true;
         }
     }
@@ -76,7 +73,6 @@ export default class InsightFacade implements IInsightFacade {
     public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             if (this.notValidID(id, kind)) {
-                Log.trace(id);
                 return reject(new InsightError());
             } else {
                 let Zip = new JSZip();
