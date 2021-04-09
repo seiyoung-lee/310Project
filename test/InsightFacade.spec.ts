@@ -1133,7 +1133,7 @@ describe("InsightFacade PerformQuery", () => {
                 it(`[${test.filename}] ${test.title}`, function () {
                     const futureResult: Promise<
                         any[]
-                    > = insightFacade.performQuery(test.query);
+                        > = insightFacade.performQuery(test.query);
                     return TestUtil.verifyQueryResult(futureResult, test);
                 });
             }

@@ -39,8 +39,9 @@ CampusExplorer.buildQuery = () => {
                         const selectedOperator = theOperators.querySelector("select option:checked").value;
                         const theTerm = theCondition.getElementsByClassName("control term")[0];
                         let writtenTerm = theTerm.getElementsByTagName('input')[0].value.trim();
-                        if (/^\d+$/.test(writtenTerm) && numKeys.includes(selectedValue)) {
-                            writtenTerm = Number(writtenTerm);
+                        const parsed = parseFloat(writtenTerm);
+                        if (!isNaN(parsed)) {
+                            writtenTerm = parsed;
                         }
                         let OperatorObject = {}
                         let simpleObject = {};
